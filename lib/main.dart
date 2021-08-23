@@ -83,6 +83,9 @@ class _MyHomePageState extends State<MyHomePage> {
     30: 0,
     31: 0,
   };
+  int leftClockwiseArrowIndicator = -1;
+  int rightClockwiseArrowIndicator = -1;
+  int selectedDirection = 0;
   late int currentCarryingSeeds = 0;
   late int activePit = -1;
   setActiveSelectedHole(id) {
@@ -97,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  getPitsSeeds(int hole) {
-    return pitsSeedsList[hole]!;
+  getPitsSeeds(int pit) {
+    return pitsSeedsList[pit]!;
   }
 
   // addToNorthCurrentSavingPits() {}
@@ -131,9 +134,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
-          currentCarryingSeeds--;
-          pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
-          pitsIndexesToAddSeed.remove(pitIndex);
+          if (pitsIndexesToAddSeed[0] == pitIndex) {
+            currentCarryingSeeds--;
+            pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+            pitsIndexesToAddSeed.remove(pitIndex);
+          }
         }
       }
     });
@@ -146,33 +151,19 @@ class _MyHomePageState extends State<MyHomePage> {
   carryingSeedsFromPit({required int pitIndexFrom}) {
     if (currentCarryingSeeds == 0) {
       setState(() {
-        // Transfer to sowing/carrying
-        if (pitIndexFrom <= pits / 2) {
-          print("North");
-          pitsIndexesToAddSeed =
-              pitsSeedsList.keys.where((key) => key < pits / 2).toList();
-          print(pitsIndexesToAddSeed);
-
-          /// TODO
-          /// If currentCarryingSeeds < 16, remove pitIndexFrom from the pitsIndexesToAddSeed
-          /// and any other seeds basing on the Direction of sowing
-
-          pitsIndexesToAddSeed =
-              pitsIndexesToAddSeed.sublist(pitIndexFrom, pitIndexFrom + 2);
-          print(pitsIndexesToAddSeed);
-        } else {
-          print("South");
-          pitsIndexesToAddSeed =
-              pitsSeedsList.keys.where((key) => key >= pits / 2).toList();
-          print(pitsIndexesToAddSeed);
+        /// Transfer to sowing/carrying
+        int seedsToTransfer = pitsSeedsList[pitIndexFrom]!;
+        if (seedsToTransfer > 0) {
+          pitsIndexesToAddSeed = sowing(
+              start: pitIndexFrom, steps: seedsToTransfer, dirAnticlockwise: 1);
         }
 
         /// TODO
-        // With exception to Namua start, limited to ONLY  pits
-
+        /// With exception to NAMUA start, limited to ONLY  pits
         currentCarryingSeeds = pitsSeedsList[pitIndexFrom]!;
         print(currentCarryingSeeds);
-        //Empty the hole
+
+        ///Empty the pit
         pitsSeedsList[pitIndexFrom] = 0;
       });
     }
@@ -187,6 +178,173 @@ class _MyHomePageState extends State<MyHomePage> {
         : setState(() {
             currentServesSouth != 0 ? pickFromSouthServes() : 0;
           });
+  }
+
+  List<int> chooseDirection({required int fromPit}) {
+    int leftDirectionIndicatorKey = -1;
+    int rightDirectionIndicatorKey = -1;
+    List<int> toReturn = [];
+    var list = [];
+    if (fromPit < 16) {
+      /// This is on North
+      /// Now get the adjacent pits
+      list = northAntiClockwiseIndexes;
+      if (list.contains(fromPit)) {
+        var centerIndex = list.indexOf(fromPit);
+        var listAsMap = {};
+        listAsMap = list.asMap();
+        listAsMap.forEach((key, value) {
+          if (key == centerIndex) {
+            leftDirectionIndicatorKey = key - 1;
+            if (leftDirectionIndicatorKey < listAsMap.keys.first) {
+              leftDirectionIndicatorKey = listAsMap.keys.last;
+            }
+          }
+          if (key == centerIndex) {
+            rightDirectionIndicatorKey = key + 1;
+            if (rightDirectionIndicatorKey > listAsMap.keys.last) {
+              rightDirectionIndicatorKey = listAsMap.keys.first;
+            }
+          }
+        });
+        print("left = " +
+            leftDirectionIndicatorKey.toString() +
+            " <===> right = " +
+            rightDirectionIndicatorKey.toString());
+      }
+      toReturn = [
+        list[leftDirectionIndicatorKey],
+        list[rightDirectionIndicatorKey]
+      ];
+    } else {
+      list = southAntiClockwiseIndexes;
+      if (list.contains(fromPit)) {
+        var centerIndex = list.indexOf(fromPit);
+        var listAsMap = {};
+        listAsMap = list.asMap();
+        listAsMap.forEach((key, value) {
+          if (key == centerIndex) {
+            leftDirectionIndicatorKey = key - 1;
+            if (leftDirectionIndicatorKey < listAsMap.keys.first) {
+              leftDirectionIndicatorKey = listAsMap.keys.last;
+            }
+          }
+          if (key == centerIndex) {
+            rightDirectionIndicatorKey = key + 1;
+            if (rightDirectionIndicatorKey > listAsMap.keys.last) {
+              rightDirectionIndicatorKey = listAsMap.keys.first;
+            }
+          }
+        });
+        print("left = " +
+            leftDirectionIndicatorKey.toString() +
+            " <===> right = " +
+            rightDirectionIndicatorKey.toString());
+      }
+      toReturn = [
+        list[leftDirectionIndicatorKey],
+        list[rightDirectionIndicatorKey]
+      ];
+    }
+    print(toReturn);
+    return toReturn;
+  }
+
+  ///TEST CYCLING ITERATION
+  /// THIS FUNCTION WILL REQUIRE
+  /// { pitsFromIndex as start, seedsFromThePit as steps, direction of sowing, isNorth bool}
+  /// =>
+  /// and will return List of pits to iterate to.
+  List<int> sowing(
+      {required int start, required int steps, required int dirAnticlockwise}) {
+    int overflowCount = 0;
+    var keysForSowing = [];
+    List<int> sowingIndexes = [];
+    var list = [];
+    print("##################");
+    if (start < 16) {
+      print(northAntiClockwiseIndexes);
+      print(northAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = northAntiClockwiseIndexes
+          : list = northAntiClockwiseIndexes.reversed.toList();
+    } else {
+      print(southAntiClockwiseIndexes);
+      print(southAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = southAntiClockwiseIndexes
+          : list = southAntiClockwiseIndexes.reversed.toList();
+    }
+    print("##################");
+    if (list.contains(start)) {
+      print("Anticlockwise Direction from => " +
+          start.toString() +
+          ", steps => " +
+          steps.toString());
+      var a = list.asMap();
+      print(a);
+      int startKey = -1;
+      int endKey = -1;
+
+      /// get Key for starting point from a map
+      a.forEach((key, value) {
+        if (value == start) {
+          startKey = key + 1;
+        }
+      });
+      print(startKey);
+
+      /// Now get the next keys to sow
+      endKey = startKey + steps;
+      if (endKey > a.keys.last) {
+        overflowCount = endKey - a.keys.last;
+        print("Overflowed by " + overflowCount.toString());
+
+        /// TODO: TESTING OVERFLOW
+        keysForSowing = a.keys.toList().sublist(startKey, a.length);
+        if (overflowCount < 16) {
+          for (var i = 0; i < overflowCount; i++) {
+            keysForSowing.add(i);
+          }
+        } else {
+          var overflowLoopCount = (overflowCount / 16).floor();
+          var overflowLoopCountReminder = overflowCount % 16;
+
+          print("%%%%%%%%%%%%%%%%%");
+          print("overflowLoopCount = " + overflowLoopCount.toString());
+          print("%%%%%%%%%%%%%%%%%");
+          print("overflowLoopCountReminder = " +
+              overflowLoopCountReminder.toString());
+          for (var j = 0; j < overflowLoopCount; j++) {
+            for (var i = 0; i < 16; i++) {
+              keysForSowing.add(i);
+            }
+          }
+          for (var i = 0; i < overflowLoopCountReminder; i++) {
+            keysForSowing.add(i);
+          }
+        }
+      } else {
+        keysForSowing = a.keys.toList().sublist(startKey, endKey);
+      }
+      print("########---------##########");
+      print(endKey);
+      print("#########+++++++++#########");
+      print(keysForSowing);
+      print("#########*********#########");
+
+      ///SOWING INDEXES
+      for (var i in keysForSowing) {
+        sowingIndexes.add(a[i]);
+      }
+
+      /// Remove initial index which holds value of the pit just collected
+      print(sowingIndexes);
+      print(sowingIndexes);
+      print(sowingIndexes.length);
+      print("########=========##########");
+    }
+    return sowingIndexes;
   }
 
   @override
@@ -272,7 +430,7 @@ class _MyHomePageState extends State<MyHomePage> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/bao-bg.jpg'),
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black12,
                   BlendMode.colorBurn,
@@ -325,6 +483,30 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         onDoubleTap: () {
           carryingSeedsFromPit(pitIndexFrom: i);
+        },
+        onLongPress: () {
+          /// TODO: CHOOSE DIRECTION OF SOWING CLOCKWISE (+1) OR ANTICLOCKWISE (-1)
+          /// Function to show direction options on Adjacent pits
+          /// Knowing adjacent pits???
+
+          List<int> returned = chooseDirection(fromPit: i);
+          int left = returned[0];
+          int right = returned[1];
+          setState(() {
+            if (left < right && (left - right).abs() < 3) {
+              leftClockwiseArrowIndicator = left;
+              rightClockwiseArrowIndicator = right;
+            } else {
+              leftClockwiseArrowIndicator = right;
+              rightClockwiseArrowIndicator = left;
+            }
+          });
+          if (pitsSeedsList[i]! > 0 && selectedDirection != 0) {
+            sowing(
+                start: i,
+                steps: pitsSeedsList[i]!,
+                dirAnticlockwise: selectedDirection);
+          }
         },
         child: Padding(
           padding: EdgeInsets.all(4.0),
@@ -417,12 +599,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget kete(int hole, int pitsCounts, double w, bool isOnServes) {
+  Widget kete(int pit, int seeds, double w, bool isOnServes) {
     return Container(
       padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(shape: BoxShape.circle),
       child: Stack(
+        alignment: Alignment.center,
         children: [
+          Container(),
           ClipRRect(
             borderRadius: BorderRadius.circular(0),
             child: Container(
@@ -433,10 +617,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   for (var j = 0;
                       j <
-                          (pitsCounts < 9
-                              ? pitsCounts
+                          (seeds < 9
+                              ? seeds
                               : isOnServes
-                                  ? pitsCounts
+                                  ? seeds
                                   : 9);
                       j++)
                     Container(
@@ -458,7 +642,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          !isOnServes && pitsCounts > 9
+          !isOnServes && seeds > 9
               ? Positioned(
                   bottom: 0,
                   top: 0,
@@ -471,18 +655,45 @@ class _MyHomePageState extends State<MyHomePage> {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color:
-                            activePit == hole ? activePitColor : Colors.white38,
-                        shape: hole == southHomeIndex || hole == northHomeIndex
+                            activePit == pit ? activePitColor : Colors.white38,
+                        shape: pit == southHomeIndex || pit == northHomeIndex
                             ? BoxShape.rectangle
                             : BoxShape.circle,
                       ),
                       child: Text(
-                        hole.toString(),
+                        pit.toString(),
                       ),
                     ),
                   ),
                 )
-              : SizedBox()
+              : SizedBox(),
+          leftClockwiseArrowIndicator == pit
+              ? Positioned(
+                  bottom: 0,
+                  top: 0,
+                  right: 0,
+                  left: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.greenAccent.withOpacity(0.2),
+                    ),
+                  ),
+                )
+              : rightClockwiseArrowIndicator == pit
+                  ? Positioned(
+                      bottom: 0,
+                      top: 0,
+                      right: 0,
+                      left: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.greenAccent.withOpacity(0.2),
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
         ],
       ),
     );
