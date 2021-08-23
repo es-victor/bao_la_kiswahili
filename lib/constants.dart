@@ -9,7 +9,7 @@ const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
 const servesSeeds = 22;
-const homeSeedsCount = 17; //11, 20
+const homeSeedsCount = 6; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 
 /// 0   1   2   3   4   5   6   7
