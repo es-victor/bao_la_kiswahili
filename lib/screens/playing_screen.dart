@@ -186,15 +186,33 @@ class _PlayingScreenState extends State<PlayingScreen> {
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
-            pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
-            pitsIndexesToAddSeed.remove(pitIndex);
-            if (pitsIndexesToAddSeed.isNotEmpty &&
-                pitsIndexesToAddSeed.last > 0) {
-              print("Last non-empty sowing  pit " +
-                  pitsSeedsList[pitsIndexesToAddSeed.last]!.toString());
+            if (pitsIndexesToAddSeed.length == 1) {
+              /// Check sowing last pit
+              if (pitsIndexesToAddSeed.isNotEmpty &&
+                  pitsIndexesToAddSeed.last > 0) {
+                if (pitsSeedsList[pitsIndexesToAddSeed.last]! > 0) {
+                  print("Last non-empty sowing  pit " +
+                      pitsSeedsList[pitsIndexesToAddSeed.last]!.toString());
+                  print("Carry all seeds");
+                  pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+                  pitsIndexesToAddSeed.remove(pitIndex);
+                  selectedDirection = 0;
+                  centerPitIndexFrom = pitIndex;
+                  currentCarryingSeeds--;
+                  chooseDirection(fromPit: pitIndex);
+                  carryingSeedsFromPit(pitIndexFrom: pitIndex);
+                  return;
+                }
+              }
+              pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+              pitsIndexesToAddSeed.remove(pitIndex);
+            } else {
+              pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+              pitsIndexesToAddSeed.remove(pitIndex);
             }
             currentCarryingSeeds--;
             if (currentCarryingSeeds == 0) {
+              northIsPlaying = !northIsPlaying;
               selectedDirection = 0;
             }
           }
@@ -593,11 +611,16 @@ class _PlayingScreenState extends State<PlayingScreen> {
             print("Play the serves South");
             return;
           }
-          if (currentCarryingSeeds > 0) {
+
+          /// Can't carry if you have currentCarryingSeeds in hand or on pit with less than 2 seeds
+          if (currentCarryingSeeds > 0 || pitsSeedsList[i]! < 2) {
             return;
           }
-          chooseDirection(fromPit: i);
-          carryingSeedsFromPit(pitIndexFrom: i);
+          if ((i < pits / 2 && northIsPlaying) ||
+              (i >= pits / 2 && !northIsPlaying)) {
+            chooseDirection(fromPit: i);
+            carryingSeedsFromPit(pitIndexFrom: i);
+          }
         },
         onLongPress: () {
           /// TODO: CHOOSE DIRECTION OF SOWING CLOCKWISE (+1) OR ANTICLOCKWISE (-1)
