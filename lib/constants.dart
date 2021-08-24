@@ -8,7 +8,7 @@ const northHomeIndex = 11;
 const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
-const servesSeeds = 22;
+const servesSeeds = 2;
 const homeSeedsCount = 6; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 

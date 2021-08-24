@@ -14,6 +14,8 @@ class PlayingScreen extends StatefulWidget {
 class _PlayingScreenState extends State<PlayingScreen> {
   late int currentServesSouth = servesSeeds;
   late int currentServesNorth = servesSeeds;
+
+  /// North starts the game
   late bool northIsPlaying = true;
   late int homeSeeds = homeSeedsCount;
   late int adjacentPitsSeeds = adjacentPitsSeedsCount;
@@ -59,6 +61,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
   late int activePit = -1;
   int centerPitIndexFrom = -1;
   bool isNamuaPhase = true;
+  int southCarryingSeedFromServe = 0;
+  int northCarryingSeedFromServe = 0;
 
   /// Show both indicators when selectionDirection == 0 && currentCarryingSeed > 0
   /// Show indicator when on the next pit to add seed
@@ -99,38 +103,56 @@ class _PlayingScreenState extends State<PlayingScreen> {
   // addToSouthCurrentSavingPits() {}
   pickFromNorthServes() {
     if (!northIsPlaying) {
-      northIsPlaying = true;
-      addToNorthCurrentSavingPits();
+      northCarryingSeedFromServe = 1;
+      pitsIndexesToAddSeed = northAntiClockwiseIndexes;
+      print("North");
       return currentServesNorth--;
     }
-
     return currentServesNorth;
   }
 
   pickFromSouthServes() {
     if (northIsPlaying) {
-      northIsPlaying = false;
-      addToSouthCurrentSavingPits();
+      southCarryingSeedFromServe = 1;
+      pitsIndexesToAddSeed = southAntiClockwiseIndexes;
+      print("South");
       return currentServesSouth--;
     }
     return currentServesSouth;
   }
 
-  addToNorthCurrentSavingPits() {}
-  addToSouthCurrentSavingPits() {}
   addSingleSeedToPit({
     required int pitIndex,
     required int centerIndex,
     required bool isFromServe,
   }) {
-    print("pitsIndexesToAddSeed");
-    print(pitsIndexesToAddSeed);
-    print("pitsIndexesToAddSeed");
-
     /// TODO
     /// Where to add seed
     /// In which direction to add seed
+    if (isFromServe) {
+      ///TODO: Only add to non-empty pit
 
+      if (pitsIndexesToAddSeed.contains(pitIndex) &&
+          pitsSeedsList[pitIndex]! > 0) {
+        pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+
+        /// Resetting
+        pitsIndexesToAddSeed = [];
+        northCarryingSeedFromServe = 0;
+        southCarryingSeedFromServe = 0;
+        print("Added from serve");
+        chooseDirection(fromPit: pitIndex);
+        carryingSeedsFromPit(pitIndexFrom: pitIndex);
+
+        /// TODO :: continue to sow
+        /// Maintain the playing session for South/North
+        /// Choose direction
+        /// Sow until final seed fall to empty pit
+      } else {
+        print("Can't add to Empty pit");
+      }
+      return;
+    }
     if (selectedDirection == 0 && currentCarryingSeeds != 0) {
       /// SET DIRECTION FOR SOWING
       if (leftClockwiseArrowIndicator == pitIndex) {
@@ -166,12 +188,38 @@ class _PlayingScreenState extends State<PlayingScreen> {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
             pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
             pitsIndexesToAddSeed.remove(pitIndex);
+            if (pitsIndexesToAddSeed.isNotEmpty &&
+                pitsIndexesToAddSeed.last > 0) {
+              print("Last non-empty sowing  pit " +
+                  pitsSeedsList[pitsIndexesToAddSeed.last]!.toString());
+            }
             currentCarryingSeeds--;
             if (currentCarryingSeeds == 0) {
               selectedDirection = 0;
             }
           }
         }
+      }
+    });
+  }
+
+  chooseDirection({required int fromPit}) {
+    List<int> returned = directionOptions(fromPit: fromPit);
+    int left = returned[0];
+    int right = returned[1];
+    setState(() {
+      if (left < right || (left - right).abs() < 3) {
+        leftClockwiseArrowIndicator = left;
+        rightClockwiseArrowIndicator = right;
+        print("Set Direction 1");
+      } else if ((left - right).abs() > 3) {
+        leftClockwiseArrowIndicator = left;
+        rightClockwiseArrowIndicator = right;
+        print("Set Direction 2");
+      } else {
+        leftClockwiseArrowIndicator = right;
+        rightClockwiseArrowIndicator = left;
+        print("Set Direction 3");
       }
     });
   }
@@ -202,7 +250,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
   }
 
   setDirection() {}
-  List<int> chooseDirection({required int fromPit}) {
+  List<int> directionOptions({required int fromPit}) {
     int leftDirectionIndicatorKey = -1;
     int rightDirectionIndicatorKey = -1;
     List<int> toReturn = [];
@@ -423,19 +471,22 @@ class _PlayingScreenState extends State<PlayingScreen> {
             ),
           ),
 
-          /// PIT ON MOVE
+          /// SEED FROM SERVES ON MOVE
 
-          // northIsPlaying
-          //     ? Positioned(
-          //         top: sMin * 0.05,
-          //         left: sMin * 0.05,
-          //         child: seedOnMove(isNorth: northIsPlaying),
-          //       )
-          //     : Positioned(
-          //         bottom: sMin * 0.05,
-          //         right: sMin * 0.05,
-          //         child: seedOnMove(isNorth: !northIsPlaying),
-          //       ),
+          northCarryingSeedFromServe == 1
+              ? Positioned(
+                  top: sMin * 0.05,
+                  left: sMin * 0.05,
+                  child: seedOnMove(isNorth: northIsPlaying),
+                )
+              : SizedBox.shrink(),
+          southCarryingSeedFromServe == 1
+              ? Positioned(
+                  bottom: sMin * 0.05,
+                  right: sMin * 0.05,
+                  child: seedOnMove(isNorth: !northIsPlaying),
+                )
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -446,8 +497,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
       children: [
         InkWell(
           onTap: () {
+            if (isNorth && currentServesNorth == 0) {
+              print("No seeds to take from North");
+              return;
+            }
+            if (!isNorth && currentServesSouth == 0) {
+              print("No seeds to take from South");
+              return;
+            }
+            if (northCarryingSeedFromServe == 1 ||
+                southCarryingSeedFromServe == 1) {
+              if (northCarryingSeedFromServe == 1) {
+                print("Play north seed from serve");
+              } else {
+                print("Play south seed from serve");
+              }
+              return;
+            }
             pickFromServes(isNorth);
-            print("pickFromServes isNorth = " + isNorth.toString());
           },
           child: Container(
             padding: EdgeInsets.all(8),
@@ -491,13 +558,25 @@ class _PlayingScreenState extends State<PlayingScreen> {
   }
 
   Widget pit({required int i, required double sMin}) {
+    bool isNorth = true;
+    if (i >= pits / 2) {
+      isNorth = false;
+    }
     return Transform(
       alignment: Alignment.center,
       transform:
           i >= pits / 2 ? Matrix4.rotationZ(0) : Matrix4.rotationZ(math.pi),
       child: InkWell(
         onTap: () {
-          if (centerPitIndexFrom != -1) {
+          if (northCarryingSeedFromServe == 1 ||
+              southCarryingSeedFromServe == 1) {
+            print("Add from serve");
+            addSingleSeedToPit(
+              pitIndex: i,
+              centerIndex: centerPitIndexFrom,
+              isFromServe: true,
+            );
+          } else if (centerPitIndexFrom != -1) {
             addSingleSeedToPit(
               pitIndex: i,
               centerIndex: centerPitIndexFrom,
@@ -507,24 +586,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
           setActiveSelectedHole(i);
         },
         onDoubleTap: () {
-          List<int> returned = chooseDirection(fromPit: i);
-          int left = returned[0];
-          int right = returned[1];
-          setState(() {
-            if (left < right || (left - right).abs() < 3) {
-              leftClockwiseArrowIndicator = left;
-              rightClockwiseArrowIndicator = right;
-              print("Set Direction 1");
-            } else if ((left - right).abs() > 3) {
-              leftClockwiseArrowIndicator = left;
-              rightClockwiseArrowIndicator = right;
-              print("Set Direction 2");
-            } else {
-              leftClockwiseArrowIndicator = right;
-              rightClockwiseArrowIndicator = left;
-              print("Set Direction 3");
-            }
-          });
+          if (isNorth && currentServesNorth > 0) {
+            print("Play the serves North");
+            return;
+          } else if (!isNorth && currentServesSouth > 0) {
+            print("Play the serves South");
+            return;
+          }
+          if (currentCarryingSeeds > 0) {
+            return;
+          }
+          chooseDirection(fromPit: i);
           carryingSeedsFromPit(pitIndexFrom: i);
         },
         onLongPress: () {
@@ -532,7 +604,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
           /// Function to show direction options on Adjacent pits
           /// Knowing adjacent pits???
 
-          // List<int> returned = chooseDirection(fromPit: i);
+          // List<int> returned = directionOptions(fromPit: i);
           // int left = returned[0];
           // int right = returned[1];
           // setState(() {
@@ -712,7 +784,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   ),
                 )
               : SizedBox(),
-          indicator(pitIndex: pit)
+          indicator(pitIndex: pit) &&
+                  (northCarryingSeedFromServe == 0 &&
+                      southCarryingSeedFromServe == 0)
               ? Positioned(
                   bottom: 0,
                   top: 0,
@@ -725,20 +799,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                     ),
                   ),
                 )
-              : indicator(pitIndex: pit)
-                  ? Positioned(
-                      bottom: 0,
-                      top: 0,
-                      right: 0,
-                      left: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.greenAccent.withOpacity(0.2),
-                        ),
-                      ),
-                    )
-                  : SizedBox(),
+              : SizedBox(),
         ],
       ),
     );
