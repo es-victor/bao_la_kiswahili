@@ -102,7 +102,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
   // addToNorthCurrentSavingPits() {}
   // addToSouthCurrentSavingPits() {}
   pickFromNorthServes() {
-    if (!northIsPlaying) {
+    if (northIsPlaying) {
       northCarryingSeedFromServe = 1;
       pitsIndexesToAddSeed = northAntiClockwiseIndexes;
       print("North");
@@ -112,7 +112,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
   }
 
   pickFromSouthServes() {
-    if (northIsPlaying) {
+    if (!northIsPlaying) {
       southCarryingSeedFromServe = 1;
       pitsIndexesToAddSeed = southAntiClockwiseIndexes;
       print("South");
@@ -166,9 +166,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
             dirAnticlockwise: selectedDirection);
         print(pitsIndexesToAddSeed.length);
       } else if (rightClockwiseArrowIndicator == pitIndex) {
-        print("Selected rightClockwiseArrowIndicator");
-        print(leftClockwiseArrowIndicator);
-        print(rightClockwiseArrowIndicator);
+        // print("Selected rightClockwiseArrowIndicator");
+        // print(leftClockwiseArrowIndicator);
+        // print(rightClockwiseArrowIndicator);
         selectedDirection = -1;
         pitsIndexesToAddSeed = sowing(
             start: centerIndex,
@@ -177,10 +177,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print(pitsIndexesToAddSeed.length);
       }
     }
-    print("##################");
-    print("selectedDirection " + selectedDirection.toString());
-    print("currentCarryingSeeds " + currentCarryingSeeds.toString());
-    print("##################");
+    // print("##################");
+    // print("selectedDirection " + selectedDirection.toString());
+    // print("currentCarryingSeeds " + currentCarryingSeeds.toString());
+    // print("##################");
 
     setState(() {
       if (currentCarryingSeeds > 0) {
@@ -213,6 +213,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
             currentCarryingSeeds--;
             if (currentCarryingSeeds == 0) {
               northIsPlaying = !northIsPlaying;
+              print("        nimepitaa tena");
               selectedDirection = 0;
             }
           }
@@ -515,11 +516,11 @@ class _PlayingScreenState extends State<PlayingScreen> {
       children: [
         InkWell(
           onTap: () {
-            if (isNorth && currentServesNorth == 0) {
+            if (isNorth && currentServesNorth == 0 && northIsPlaying) {
               print("No seeds to take from North");
               return;
             }
-            if (!isNorth && currentServesSouth == 0) {
+            if (!isNorth && currentServesSouth == 0 && !northIsPlaying) {
               print("No seeds to take from South");
               return;
             }
@@ -604,10 +605,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
           setActiveSelectedHole(i);
         },
         onDoubleTap: () {
-          if (isNorth && currentServesNorth > 0) {
+          if (isNorth && currentServesNorth > 0 && northIsPlaying) {
             print("Play the serves North");
             return;
-          } else if (!isNorth && currentServesSouth > 0) {
+          } else if (!isNorth && currentServesSouth > 0 && !northIsPlaying) {
             print("Play the serves South");
             return;
           }
@@ -616,8 +617,12 @@ class _PlayingScreenState extends State<PlayingScreen> {
           if (currentCarryingSeeds > 0 || pitsSeedsList[i]! < 2) {
             return;
           }
-          if ((i < pits / 2 && northIsPlaying) ||
-              (i >= pits / 2 && !northIsPlaying)) {
+          if ((i < pits / 2 &&
+                  northIsPlaying &&
+                  northCarryingSeedFromServe == 0) ||
+              (i >= pits / 2 &&
+                  !northIsPlaying &&
+                  southCarryingSeedFromServe == 0)) {
             chooseDirection(fromPit: i);
             carryingSeedsFromPit(pitIndexFrom: i);
           }
