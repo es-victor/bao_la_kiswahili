@@ -8,7 +8,7 @@ const northHomeIndex = 11;
 const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
-const servesSeeds = 1;
+const servesSeeds = 4;
 const homeSeedsCount = 6; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 
@@ -16,7 +16,26 @@ const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 /// 8   9   10  11  12  13  14  15
 /// 16  17  18  19  20  21  22  23
 /// 24  25  26  27  28  29  30  31
-
+const List<int> adjacentCapturingPairPits = [
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23
+];
+const List<int> northInnerRow = [8, 9, 10, 11, 12, 13, 14, 15];
+const List<int> southInnerRow = [16, 17, 18, 19, 20, 21, 22, 23];
 const List<int> northAntiClockwiseIndexes = [
   7,
   6,
