@@ -188,27 +188,47 @@ class _PlayingScreenState extends State<PlayingScreen> {
     /// Where to add seed
     /// In which direction to add seed
     if (selectedDirection == 0 && currentCarryingSeeds != 0) {
+      print("isCapturedFromServe hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " +
+          isCapturedFromServe.toString());
+
       /// SET DIRECTION FOR SOWING
       if (leftClockwiseArrowIndicator == pitIndex) {
         print("Selected leftClockwiseArrowIndicator");
         print(leftClockwiseArrowIndicator);
         print(rightClockwiseArrowIndicator);
-        selectedDirection = 1;
-        pitsIndexesToAddSeed = sowing(
-            start: centerIndex,
-            steps: currentCarryingSeeds,
-            dirAnticlockwise: selectedDirection);
+        print("isCapturedFromServe " + isCapturedFromServe.toString());
+        if (isCapturedFromServe) {
+          pitsIndexesToAddSeed = [leftClockwiseArrowIndicator];
+          print(
+              "   leftClockwiseArrowIndicator       // pitsIndexesToAddSeed=[]");
+        } else {
+          selectedDirection = 1;
+
+          pitsIndexesToAddSeed = sowing(
+              start: centerIndex,
+              steps: currentCarryingSeeds,
+              dirAnticlockwise: selectedDirection);
+        }
+
         print(pitsIndexesToAddSeed.length);
         print(pitsIndexesToAddSeed);
       } else if (rightClockwiseArrowIndicator == pitIndex) {
         // print("Selected rightClockwiseArrowIndicator");
         // print(leftClockwiseArrowIndicator);
         // print(rightClockwiseArrowIndicator);
-        selectedDirection = -1;
-        pitsIndexesToAddSeed = sowing(
-            start: centerIndex,
-            steps: currentCarryingSeeds,
-            dirAnticlockwise: selectedDirection);
+        print("isCapturedFromServe " + isCapturedFromServe.toString());
+        if (isCapturedFromServe) {
+          pitsIndexesToAddSeed = [rightClockwiseArrowIndicator];
+
+          print(
+              "    rightClockwiseArrowIndicator      // pitsIndexesToAddSeed=[]");
+        } else {
+          selectedDirection = -1;
+          pitsIndexesToAddSeed = sowing(
+              start: centerIndex,
+              steps: currentCarryingSeeds,
+              dirAnticlockwise: selectedDirection);
+        }
         print(pitsIndexesToAddSeed.length);
         print(pitsIndexesToAddSeed);
       }
@@ -217,7 +237,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
     // print("selectedDirection " + selectedDirection.toString());
     // print("currentCarryingSeeds " + currentCarryingSeeds.toString());
     // print("##################");
-
     setState(() {
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
@@ -226,6 +245,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
               /// Check sowing last pit
               if (pitsIndexesToAddSeed.isNotEmpty &&
                   pitsIndexesToAddSeed.last > 0) {
+                print("isCapturedFromServe ooooooooooooooooooooooo " +
+                    isCapturedFromServe.toString());
+
                 if (pitsSeedsList[pitsIndexesToAddSeed.last]! > 0) {
                   print("Last non-empty sowing  pit " +
                       pitsSeedsList[pitsIndexesToAddSeed.last]!.toString());
@@ -262,10 +284,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
               }
               pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
               pitsIndexesToAddSeed.remove(pitIndex);
+              print("isCapturedFromServe wwwwwwwwwwwwwwwwww " +
+                  isCapturedFromServe.toString());
             } else {
+              print("isCapturedFromServe aaaaaaaaaaaaaaaaaaaa " +
+                  isCapturedFromServe.toString());
+
               pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
               pitsIndexesToAddSeed.remove(pitIndex);
             }
+            print("isCapturedFromServe sssssssssssss " +
+                isCapturedFromServe.toString());
             currentCarryingSeeds--;
             if (currentCarryingSeeds == 0) {
               checkForWinner();
@@ -399,7 +428,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
         ///Emptying the pit
         if (!currentCarryingSeedsFromServe) {
           print("sdfffffffffffffffffffffffffffffffffff");
-
           currentCarryingSeeds = pitsSeedsList[pitIndexFrom]!;
           pitsSeedsList[pitIndexFrom] = 0;
         }
@@ -741,7 +769,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
             );
           } else if (centerPitIndexFrom != -1) {
             print("asdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasdasasa");
-
+            if (isCapturedFromServe) {}
             addSingleSeedToPit(
               pitIndex: i,
               centerIndex: centerPitIndexFrom,
