@@ -203,13 +203,11 @@ class _PlayingScreenState extends State<PlayingScreen> {
               "   leftClockwiseArrowIndicator       // pitsIndexesToAddSeed=[]");
         } else {
           selectedDirection = 1;
-
           pitsIndexesToAddSeed = sowing(
               start: centerIndex,
               steps: currentCarryingSeeds,
               dirAnticlockwise: selectedDirection);
         }
-
         print(pitsIndexesToAddSeed.length);
         print(pitsIndexesToAddSeed);
       } else if (rightClockwiseArrowIndicator == pitIndex) {
@@ -219,7 +217,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print("isCapturedFromServe " + isCapturedFromServe.toString());
         if (isCapturedFromServe) {
           pitsIndexesToAddSeed = [rightClockwiseArrowIndicator];
-
           print(
               "    rightClockwiseArrowIndicator      // pitsIndexesToAddSeed=[]");
         } else {
@@ -705,6 +702,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
               } else {
                 print("Play south seed from serve");
               }
+              return;
+            }
+            if (currentCarryingSeeds > 0) {
               return;
             }
             pickFromServes(isNorth);
