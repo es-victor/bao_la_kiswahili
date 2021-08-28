@@ -8,7 +8,7 @@ const northHomeIndex = 11;
 const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
-const servesSeeds = 4;
+const servesSeeds = 10;
 const homeSeedsCount = 6; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 
@@ -108,3 +108,195 @@ const List<int> southClockwiseIndexes = [
   25,
   24
 ];
+
+///TEST CYCLING ITERATION
+/// THIS FUNCTION WILL REQUIRE
+/// { pitsFromIndex as start, seedsFromThePit as steps, direction of sowing, isNorth bool}
+/// and will return List of pits to iterate to.
+List<int> sowing(
+    {required int start, required int steps, required int dirAnticlockwise}) {
+  int overflowCount = 0;
+  var keysForSowing = [];
+  List<int> sowingIndexes = [];
+  var list = [];
+  // print("##################");
+  if (dirAnticlockwise != 0) {
+    if (start < 16) {
+      // print(northAntiClockwiseIndexes);
+      // print(northAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = northAntiClockwiseIndexes
+          : list = northAntiClockwiseIndexes.reversed.toList();
+    } else {
+      // print(southAntiClockwiseIndexes);
+      // print(southAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = southAntiClockwiseIndexes
+          : list = southAntiClockwiseIndexes.reversed.toList();
+    }
+    // print("##################");
+    if (list.contains(start)) {
+      print("Anticlockwise Direction from => " +
+          start.toString() +
+          ", steps => " +
+          steps.toString());
+      var a = list.asMap();
+      print(a);
+      int startKey = -1;
+      int endKey = -1;
+
+      /// get Key for starting point from a map
+      a.forEach((key, value) {
+        if (value == start) {
+          startKey = key + 1;
+        }
+      });
+      // print(startKey);
+
+      /// Now get the next keys to sow
+      endKey = startKey + steps;
+      if (endKey > a.keys.last) {
+        overflowCount = endKey - a.keys.last - 1;
+        print("Overflowed by " + overflowCount.toString());
+
+        /// TODO: TESTING OVERFLOW
+        keysForSowing = a.keys.toList().sublist(startKey, a.length);
+        if (overflowCount < 16) {
+          for (var i = 0; i < overflowCount; i++) {
+            keysForSowing.add(i);
+          }
+        } else {
+          var overflowLoopCount = (overflowCount / 16).floor();
+          var overflowLoopCountReminder = overflowCount % 16;
+
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCount = " + overflowLoopCount.toString());
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCountReminder = " +
+          //     overflowLoopCountReminder.toString());
+          for (var j = 0; j < overflowLoopCount; j++) {
+            for (var i = 0; i < 16; i++) {
+              keysForSowing.add(i);
+            }
+          }
+          for (var i = 0; i < overflowLoopCountReminder; i++) {
+            keysForSowing.add(i);
+          }
+        }
+      } else {
+        keysForSowing = a.keys.toList().sublist(startKey, endKey);
+      }
+      // print("########---------##########");
+      // print(endKey);
+      // print("#########+++++++++#########");
+      // print(keysForSowing);
+      // print("#########*********#########");
+
+      /// SOWING INDEXES
+      for (var i in keysForSowing) {
+        sowingIndexes.add(a[i]);
+      }
+
+      /// Remove initial index which holds value of the pit just collected
+      // print(sowingIndexes);
+      print(sowingIndexes);
+      // print(sowingIndexes.length);
+      // print("########=========##########");
+    }
+  }
+  return sowingIndexes;
+}
+
+List<int> sowingAfterCapture(
+    {required int start, required int steps, required int dirAnticlockwise}) {
+  int overflowCount = 0;
+  var keysForSowing = [];
+  List<int> sowingIndexes = [];
+  var list = [];
+  // print("##################");
+  if (dirAnticlockwise != 0) {
+    if (start < 16) {
+      // print(northAntiClockwiseIndexes);
+      // print(northAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = northAntiClockwiseIndexes
+          : list = northAntiClockwiseIndexes.reversed.toList();
+    } else {
+      // print(southAntiClockwiseIndexes);
+      // print(southAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = southAntiClockwiseIndexes
+          : list = southAntiClockwiseIndexes.reversed.toList();
+    }
+    // print("##################");
+    if (list.contains(start)) {
+      print("Anticlockwise Direction from => " +
+          start.toString() +
+          ", steps => " +
+          steps.toString());
+      var a = list.asMap();
+      print(a);
+      int startKey = -1;
+      int endKey = -1;
+
+      /// get Key for starting point from a map
+      a.forEach((key, value) {
+        if (value == start) {
+          startKey = key + 1;
+        }
+      });
+      // print(startKey);
+
+      /// Now get the next keys to sow
+      endKey = startKey + steps;
+      if (endKey > a.keys.last) {
+        overflowCount = endKey - a.keys.last - 1;
+        print("Overflowed by " + overflowCount.toString());
+
+        /// TODO: TESTING OVERFLOW
+        keysForSowing = a.keys.toList().sublist(startKey, a.length);
+        if (overflowCount < 16) {
+          for (var i = 0; i < overflowCount; i++) {
+            keysForSowing.add(i);
+          }
+        } else {
+          var overflowLoopCount = (overflowCount / 16).floor();
+          var overflowLoopCountReminder = overflowCount % 16;
+
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCount = " + overflowLoopCount.toString());
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCountReminder = " +
+          //     overflowLoopCountReminder.toString());
+          for (var j = 0; j < overflowLoopCount; j++) {
+            for (var i = 0; i < 16; i++) {
+              keysForSowing.add(i);
+            }
+          }
+          for (var i = 0; i < overflowLoopCountReminder; i++) {
+            keysForSowing.add(i);
+          }
+        }
+      } else {
+        keysForSowing = a.keys.toList().sublist(startKey, endKey);
+      }
+      // print("########---------##########");
+      // print(endKey);
+      // print("#########+++++++++#########");
+      // print(keysForSowing);
+      // print("#########*********#########");
+
+      /// SOWING INDEXES
+      for (var i in keysForSowing) {
+        sowingIndexes.add(a[i]);
+      }
+
+      /// Remove initial index which holds value of the pit just collected
+      // print(sowingIndexes);
+      print(sowingIndexes);
+      // print(sowingIndexes.length);
+      // print("########=========##########");
+    }
+  }
+  return sowingIndexes;
+}

@@ -148,22 +148,26 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
     if (!winnerNorth || !winnerSouth) {
       /// Check if user has at least one move for North
-      for (int pit in northAntiClockwiseIndexes) {
-        if (pitsSeedsList[pit]! > 1) {
-          winnerSouth = false;
-          break;
+      if (currentServesNorth == 0) {
+        for (int pit in northAntiClockwiseIndexes) {
+          if (pitsSeedsList[pit]! > 1) {
+            winnerSouth = false;
+            break;
+          }
+          winnerSouth = true;
         }
-        winnerSouth = true;
       }
 
       /// Check if user has at least one move for South
 
-      for (int pit in southAntiClockwiseIndexes) {
-        if (pitsSeedsList[pit]! > 1) {
-          winnerNorth = false;
-          break;
+      if (currentServesSouth == 0) {
+        for (int pit in southAntiClockwiseIndexes) {
+          if (pitsSeedsList[pit]! > 1) {
+            winnerNorth = false;
+            break;
+          }
+          winnerNorth = true;
         }
-        winnerNorth = true;
       }
     }
     if (winnerNorth == winnerSouth && (winnerNorth || winnerSouth)) {
@@ -198,9 +202,19 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print(rightClockwiseArrowIndicator);
         print("isCapturedFromServe " + isCapturedFromServe.toString());
         if (isCapturedFromServe) {
-          pitsIndexesToAddSeed = [leftClockwiseArrowIndicator];
-          print(
-              "   leftClockwiseArrowIndicator       // pitsIndexesToAddSeed=[]");
+          selectedDirection = -1;
+          print("##########@2222222222222222222222 " +
+              leftClockwiseArrowIndicator.toString());
+          pitsIndexesToAddSeed = [
+            leftClockwiseArrowIndicator,
+            ...sowingAfterCapture(
+                start: leftClockwiseArrowIndicator,
+                steps: currentCarryingSeeds,
+                dirAnticlockwise: selectedDirection)
+          ];
+          pitsIndexesToAddSeed.removeLast();
+          print("leftClockwiseArrowIndicator       // pitsIndexesToAddSeed=[]");
+          isCapturedFromServe = false;
         } else {
           selectedDirection = 1;
           pitsIndexesToAddSeed = sowing(
@@ -211,14 +225,22 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print(pitsIndexesToAddSeed.length);
         print(pitsIndexesToAddSeed);
       } else if (rightClockwiseArrowIndicator == pitIndex) {
-        // print("Selected rightClockwiseArrowIndicator");
-        // print(leftClockwiseArrowIndicator);
-        // print(rightClockwiseArrowIndicator);
         print("isCapturedFromServe " + isCapturedFromServe.toString());
         if (isCapturedFromServe) {
-          pitsIndexesToAddSeed = [rightClockwiseArrowIndicator];
+          selectedDirection = 1;
+          print("##########@2222222222222222222222 " +
+              rightClockwiseArrowIndicator.toString());
+          pitsIndexesToAddSeed = [
+            rightClockwiseArrowIndicator,
+            ...sowingAfterCapture(
+                start: rightClockwiseArrowIndicator,
+                steps: currentCarryingSeeds,
+                dirAnticlockwise: selectedDirection)
+          ];
+          pitsIndexesToAddSeed.removeLast();
           print(
               "    rightClockwiseArrowIndicator      // pitsIndexesToAddSeed=[]");
+          isCapturedFromServe = false;
         } else {
           selectedDirection = -1;
           pitsIndexesToAddSeed = sowing(
@@ -230,10 +252,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print(pitsIndexesToAddSeed);
       }
     }
-    // print("##################");
-    // print("selectedDirection " + selectedDirection.toString());
-    // print("currentCarryingSeeds " + currentCarryingSeeds.toString());
-    // print("##################");
     setState(() {
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
@@ -256,22 +274,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   currentCarryingSeeds--;
                   if (adjacentCapturingPairPits.contains(pitIndex)) {
                     if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
-                      // pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! +
-                      //     pitsSeedsList[pitIndex + 8]!);
-                      // pitsSeedsList[pitIndex + 8] = 0;
-                      // pitsSeedsList[pitIndex] = pitsSeedsList[pitIndex]! + 1;
                       currentCarryingSeeds = pitsSeedsList[pitIndex + 8]!;
                       pitsSeedsList[pitIndex + 8] = 0;
+                      isCapturedFromServe = true;
+                      chooseDirectionFromCapture(fromPit: pitIndex);
+                      carryingSeedsFromPit(pitIndexFrom: pitIndex);
+                      selectedDirection = 0;
                       print("Now capturing from South fdsfsfsdfsfsdfsd");
+                      return;
                     } else if (pitIndex >= 16 &&
                         pitsSeedsList[pitIndex - 8]! > 0) {
-                      // pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! +
-                      //     pitsSeedsList[pitIndex - 8]!);
-                      // pitsSeedsList[pitIndex - 8] = 0;
-                      // pitsSeedsList[pitIndex] = pitsSeedsList[pitIndex]! + 1;
                       currentCarryingSeeds = pitsSeedsList[pitIndex - 8]!;
                       pitsSeedsList[pitIndex - 8] = 0;
+                      isCapturedFromServe = true;
+                      chooseDirectionFromCapture(fromPit: pitIndex);
+                      carryingSeedsFromPit(pitIndexFrom: pitIndex);
+                      selectedDirection = 0;
                       print("Now capturing from North sdfsdfsdfsdfsas");
+                      return;
                     }
                   }
                   chooseDirection(fromPit: pitIndex);
@@ -323,6 +343,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
           isCapturedFromServe = true;
           chooseDirectionFromCapture(fromPit: pitIndex);
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
+          print("Napita tenaaaaaaaaaaaaaaaaa");
           currentCarryingSeedsFromServe = false;
           selectedDirection = 0;
           return;
@@ -334,6 +355,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
           isCapturedFromServe = true;
           chooseDirectionFromCapture(fromPit: pitIndex);
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
+          print("Napita tenaaaaaaaaaaaaaaaaa");
           currentCarryingSeedsFromServe = false;
           selectedDirection = 0;
           return;
@@ -393,25 +415,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
         print("Southeeeeeeeeeeeeeeeeeeeeee");
       }
     });
-    // return;
-    // List<int> returned = directionOptions(fromPit: fromPit);
-    // int left = returned[0];
-    // int right = returned[1];
-    // setState(() {
-    //   if (left < right || (left - right).abs() < 3) {
-    //     leftClockwiseArrowIndicator = left;
-    //     rightClockwiseArrowIndicator = right;
-    //     print("Set Direction 1");
-    //   } else if ((left - right).abs() > 3) {
-    //     leftClockwiseArrowIndicator = left;
-    //     rightClockwiseArrowIndicator = right;
-    //     print("Set Direction 2");
-    //   } else {
-    //     leftClockwiseArrowIndicator = right;
-    //     rightClockwiseArrowIndicator = left;
-    //     print("Set Direction 3");
-    //   }
-    // });
   }
 
   carryingSeedsFromPit({required int pitIndexFrom}) {
@@ -510,104 +513,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
     return toReturn;
   }
 
-  ///TEST CYCLING ITERATION
-  /// THIS FUNCTION WILL REQUIRE
-  /// { pitsFromIndex as start, seedsFromThePit as steps, direction of sowing, isNorth bool}
-  /// and will return List of pits to iterate to.
-  List<int> sowing(
-      {required int start, required int steps, required int dirAnticlockwise}) {
-    int overflowCount = 0;
-    var keysForSowing = [];
-    List<int> sowingIndexes = [];
-    var list = [];
-    // print("##################");
-    if (dirAnticlockwise != 0) {
-      if (start < 16) {
-        // print(northAntiClockwiseIndexes);
-        // print(northAntiClockwiseIndexes.reversed.toList());
-        dirAnticlockwise < 0
-            ? list = northAntiClockwiseIndexes
-            : list = northAntiClockwiseIndexes.reversed.toList();
-      } else {
-        // print(southAntiClockwiseIndexes);
-        // print(southAntiClockwiseIndexes.reversed.toList());
-        dirAnticlockwise < 0
-            ? list = southAntiClockwiseIndexes
-            : list = southAntiClockwiseIndexes.reversed.toList();
-      }
-      // print("##################");
-      if (list.contains(start)) {
-        print("Anticlockwise Direction from => " +
-            start.toString() +
-            ", steps => " +
-            steps.toString());
-        var a = list.asMap();
-        print(a);
-        int startKey = -1;
-        int endKey = -1;
-
-        /// get Key for starting point from a map
-        a.forEach((key, value) {
-          if (value == start) {
-            startKey = key + 1;
-          }
-        });
-        // print(startKey);
-
-        /// Now get the next keys to sow
-        endKey = startKey + steps;
-        if (endKey > a.keys.last) {
-          overflowCount = endKey - a.keys.last - 1;
-          print("Overflowed by " + overflowCount.toString());
-
-          /// TODO: TESTING OVERFLOW
-          keysForSowing = a.keys.toList().sublist(startKey, a.length);
-          if (overflowCount < 16) {
-            for (var i = 0; i < overflowCount; i++) {
-              keysForSowing.add(i);
-            }
-          } else {
-            var overflowLoopCount = (overflowCount / 16).floor();
-            var overflowLoopCountReminder = overflowCount % 16;
-
-            // print("%%%%%%%%%%%%%%%%%");
-            // print("overflowLoopCount = " + overflowLoopCount.toString());
-            // print("%%%%%%%%%%%%%%%%%");
-            // print("overflowLoopCountReminder = " +
-            //     overflowLoopCountReminder.toString());
-            for (var j = 0; j < overflowLoopCount; j++) {
-              for (var i = 0; i < 16; i++) {
-                keysForSowing.add(i);
-              }
-            }
-            for (var i = 0; i < overflowLoopCountReminder; i++) {
-              keysForSowing.add(i);
-            }
-          }
-        } else {
-          keysForSowing = a.keys.toList().sublist(startKey, endKey);
-        }
-        // print("########---------##########");
-        // print(endKey);
-        // print("#########+++++++++#########");
-        // print(keysForSowing);
-        // print("#########*********#########");
-
-        /// SOWING INDEXES
-        for (var i in keysForSowing) {
-          sowingIndexes.add(a[i]);
-        }
-
-        /// Remove initial index which holds value of the pit just collected
-        // print(sowingIndexes);
-        print(sowingIndexes);
-        // print(sowingIndexes.length);
-        // print("########=========##########");
-      }
-    }
-    return sowingIndexes;
-  }
-
   @override
   Widget build(BuildContext context) {
     double sMin = MediaQuery.maybeOf(context)!.size.shortestSide;
@@ -677,6 +582,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   child: seedOnMove(isNorth: !northIsPlaying),
                 )
               : SizedBox.shrink(),
+          Positioned(child: Text(currentCarryingSeeds.toString()))
         ],
       ),
     );
@@ -802,6 +708,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
               setState(() {
                 /// TODO
                 /// With exception to NAMUA start, limited to ONLY non-empty pits
+                /// Reset capturedFromServe bool value
+                isCapturedFromServe = false;
                 centerPitIndexFrom = i;
                 currentCarryingSeeds = pitsSeedsList[i]!;
 
@@ -811,32 +719,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
             }
           }
         },
-        onLongPress: () {
-          /// TODO: CHOOSE DIRECTION OF SOWING CLOCKWISE (+1) OR ANTICLOCKWISE (-1)
-          /// Function to show direction options on Adjacent pits
-          /// Knowing adjacent pits???
-
-          // List<int> returned = directionOptions(fromPit: i);
-          // int left = returned[0];
-          // int right = returned[1];
-          // setState(() {
-          //   if (left < right && (left - right).abs() > 3) {
-          //     leftClockwiseArrowIndicator = left;
-          //     rightClockwiseArrowIndicator = right;
-          //     print("Set Direction 1");
-          //   } else {
-          //     leftClockwiseArrowIndicator = right;
-          //     rightClockwiseArrowIndicator = left;
-          //     print("Set Direction 2");
-          //   }
-          // });
-          // if (pitsSeedsList[i]! > 0 && selectedDirection != 0) {
-          //   sowing(
-          //       start: i,
-          //       steps: pitsSeedsList[i]!,
-          //       dirAnticlockwise: selectedDirection);
-          // }
-        },
+        onLongPress: () {},
         child: Padding(
           padding: EdgeInsets.all(4.0),
           child: Stack(
