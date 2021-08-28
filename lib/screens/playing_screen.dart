@@ -43,7 +43,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
     16: 0,
     17: 0,
     18: 0,
-    19: 0,
+    19: 1,
     20: homeSeeds,
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
@@ -181,6 +181,15 @@ class _PlayingScreenState extends State<PlayingScreen> {
     } else {
       print("Game continues ...");
     }
+  }
+
+  checkIfHouseStillHasReputation({required int houseIndex}) {
+    if (pitsSeedsList[houseIndex]! >= 6) {
+      print("Has Reputation");
+      return true;
+    }
+    print("Has No Reputation");
+    return false;
   }
 
   addSingleSeedToPit({
@@ -327,8 +336,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
   addSingleSeedToPitFromServe({
     required int pitIndex,
   }) {
-    ///TODO: Only add to non-empty pit
+    /// TODO: Follow the rules of adding to ActiveHouse(Having 6+ seeds)
+    /// Can't add on House unless other
+    /// 1. Other innerRows are empty
+    /// 2. It can Capture
 
+    /// Seed From serve can only be added to non-empty innerRow
+    if (!(northInnerRow.contains(pitIndex) ||
+        southInnerRow.contains(pitIndex))) {
+      print("Seed from serves can only be added to non-empty innerRow");
+      return;
+    }
     if (pitsIndexesToAddSeed.contains(pitIndex) &&
         pitsSeedsList[pitIndex]! > 0) {
       northCarryingSeedFromServe = 0;
@@ -377,6 +395,58 @@ class _PlayingScreenState extends State<PlayingScreen> {
       print("Can't add to Empty pit");
       return;
     }
+  }
+
+  bool checkForPitIndexIfCanCapture({required int pitIndex}) {
+    if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
+      print("Can capture North");
+      return true;
+    } else if (pitIndex >= 16 && pitsSeedsList[pitIndex - 8]! > 0) {
+      print("Can capture South");
+      return true;
+    }
+    return false;
+  }
+
+  checkIfHouseIsEligibleToAcceptSeedFromServe({required int houseIndex}) {
+    bool success = false;
+
+    /// Check the other innerRows pits if can accept seed
+    if (southInnerRow.contains(houseIndex)) {
+      for (int i in southInnerRow) {
+        if (pitsSeedsList[i]! > 0 && i != houseIndex) {
+          /// Check if house can capture South
+          if (checkForPitIndexIfCanCapture(pitIndex: houseIndex)) {
+            print(
+                "There are other non-empty pits but House can capture, ACCEPTED");
+            success = true;
+            break;
+          } else {
+            print(
+                "House can't accept seed as it cannot capture and there are other innerRow pits that can be played");
+            success = false;
+          }
+        }
+      }
+    }
+    if (northInnerRow.contains(houseIndex)) {
+      for (int i in northInnerRow) {
+        if (pitsSeedsList[i]! > 0 && i != houseIndex) {
+          /// Check if house can capture North
+          if (checkForPitIndexIfCanCapture(pitIndex: houseIndex)) {
+            print(
+                "There are other non-empty pits but House can capture, ACCEPTED");
+            success = true;
+            break;
+          } else {
+            print(
+                "House can't accept seed as it cannot capture and there are other innerRow pits that can be played");
+            success = false;
+          }
+        }
+      }
+    }
+    return success;
   }
 
   chooseDirection({required int fromPit}) {
@@ -669,6 +739,16 @@ class _PlayingScreenState extends State<PlayingScreen> {
         onTap: () {
           if (northCarryingSeedFromServe == 1 ||
               southCarryingSeedFromServe == 1) {
+            if ((i == southHomeIndex || i == northHomeIndex) &&
+                checkIfHouseStillHasReputation(houseIndex: i)) {
+              /// Check if House is eligible
+              if (checkIfHouseIsEligibleToAcceptSeedFromServe(houseIndex: i) ==
+                  false) {
+                print("FAILED! to add from serve");
+                return;
+              }
+              print("HAVE! to add from serve");
+            }
             print("Add from serve");
             addSingleSeedToPitFromServe(
               pitIndex: i,
