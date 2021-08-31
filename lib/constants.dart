@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 const pits = 32;
 const maxSeeds = 64;
-const southHomeIndex = 20;
-const northHomeIndex = 11;
+const southHouseIndex = 20;
+const northHouseIndex = 11;
 
 const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
 const servesSeeds = 10;
-const homeSeedsCount = 5; //11, 20
+const homeSeedsCount = 12; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 
 /// 0   1   2   3   4   5   6   7
@@ -141,7 +141,7 @@ List<int> sowing(
           ", steps => " +
           steps.toString());
       var a = list.asMap();
-      print(a);
+
       int startKey = -1;
       int endKey = -1;
 
@@ -235,7 +235,6 @@ List<int> sowingAfterCapture(
           ", steps => " +
           steps.toString());
       var a = list.asMap();
-      print(a);
       int startKey = -1;
       int endKey = -1;
 
@@ -243,6 +242,99 @@ List<int> sowingAfterCapture(
       a.forEach((key, value) {
         if (value == start) {
           startKey = key + 1;
+        }
+      });
+      // print(startKey);
+
+      /// Now get the next keys to sow
+      endKey = startKey + steps;
+      if (endKey > a.keys.last) {
+        overflowCount = endKey - a.keys.last - 1;
+        print("Overflowed by " + overflowCount.toString());
+
+        /// TODO: TESTING OVERFLOW
+        keysForSowing = a.keys.toList().sublist(startKey, a.length);
+        if (overflowCount < 16) {
+          for (var i = 0; i < overflowCount; i++) {
+            keysForSowing.add(i);
+          }
+        } else {
+          var overflowLoopCount = (overflowCount / 16).floor();
+          var overflowLoopCountReminder = overflowCount % 16;
+
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCount = " + overflowLoopCount.toString());
+          // print("%%%%%%%%%%%%%%%%%");
+          // print("overflowLoopCountReminder = " +
+          //     overflowLoopCountReminder.toString());
+          for (var j = 0; j < overflowLoopCount; j++) {
+            for (var i = 0; i < 16; i++) {
+              keysForSowing.add(i);
+            }
+          }
+          for (var i = 0; i < overflowLoopCountReminder; i++) {
+            keysForSowing.add(i);
+          }
+        }
+      } else {
+        keysForSowing = a.keys.toList().sublist(startKey, endKey);
+      }
+      // print("########---------##########");
+      // print(endKey);
+      // print("#########+++++++++#########");
+      // print(keysForSowing);
+      // print("#########*********#########");
+
+      /// SOWING INDEXES
+      for (var i in keysForSowing) {
+        sowingIndexes.add(a[i]);
+      }
+
+      /// Remove initial index which holds value of the pit just collected
+      // print(sowingIndexes);
+      print(sowingIndexes);
+      // print(sowingIndexes.length);
+      // print("########=========##########");
+    }
+  }
+  return sowingIndexes;
+}
+
+List<int> sowingAfterCaptureFromSowing(
+    {required int start, required int steps, required int dirAnticlockwise}) {
+  int overflowCount = 0;
+  var keysForSowing = [];
+  List<int> sowingIndexes = [];
+  var list = [];
+  // print("##################");
+  if (dirAnticlockwise != 0) {
+    if (start < 16) {
+      // print(northAntiClockwiseIndexes);
+      // print(northAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = northAntiClockwiseIndexes
+          : list = northAntiClockwiseIndexes.reversed.toList();
+    } else {
+      // print(southAntiClockwiseIndexes);
+      // print(southAntiClockwiseIndexes.reversed.toList());
+      dirAnticlockwise < 0
+          ? list = southAntiClockwiseIndexes
+          : list = southAntiClockwiseIndexes.reversed.toList();
+    }
+    // print("##################");
+    if (list.contains(start)) {
+      print("Anticlockwise Direction from => " +
+          start.toString() +
+          ", steps => " +
+          steps.toString());
+      var a = list.asMap();
+      int startKey = -1;
+      int endKey = -1;
+
+      /// get Key for starting point from a map
+      a.forEach((key, value) {
+        if (value == start) {
+          startKey = key;
         }
       });
       // print(startKey);
