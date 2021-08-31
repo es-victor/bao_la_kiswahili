@@ -24,14 +24,14 @@ class _PlayingScreenState extends State<PlayingScreen> {
   late int adjacentPitsSeeds = adjacentPitsSeedsCount;
   late List<int> pitsIndexesToAddSeed = [];
   late Map<int, int> pitsSeedsList = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 0,
+    0: 3,
+    1: 3,
+    2: 3,
+    3: 3,
+    4: 3,
+    5: 3,
+    6: 3,
+    7: 3,
     8: 0,
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
@@ -48,14 +48,14 @@ class _PlayingScreenState extends State<PlayingScreen> {
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
     23: 0,
-    24: 0,
-    25: 0,
-    26: 0,
-    27: 0,
-    28: 0,
-    29: 0,
-    30: 0,
-    31: 0,
+    24: 3,
+    25: 3,
+    26: 3,
+    27: 3,
+    28: 3,
+    29: 3,
+    30: 3,
+    31: 3,
   };
   int leftClockwiseArrowIndicator = -1;
   int rightClockwiseArrowIndicator = -1;
@@ -240,18 +240,14 @@ class _PlayingScreenState extends State<PlayingScreen> {
     int startFrom = 0;
     if (pitIndex < 16) {
       if (selectedDirection == -1) {
-        print("Nimechagua 8");
         startFrom = 8;
       } else {
-        print("Nimechagua 15");
         startFrom = 15;
       }
     } else {
       if (selectedDirection == -1) {
-        print("Nimechagua 22");
-        startFrom = 22;
+        startFrom = 23;
       } else {
-        print("Nimechagua 16");
         startFrom = 16;
       }
     }
@@ -315,10 +311,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
             if (pitsIndexesToAddSeed.length == 1) {
-              var last = pitsIndexesToAddSeed.last;
+              var last = pitsIndexesToAddSeed[0];
 
               /// Check sowing last pit
-              if (pitsIndexesToAddSeed.isNotEmpty && last > 0) {
+              if (pitsIndexesToAddSeed.isNotEmpty && pitsSeedsList[last]! > 0) {
                 if (pitsSeedsList[last]! > 0) {
                   /// Check if the move ends in a House
                   /// Check if the move started with a Capture
@@ -394,6 +390,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
                     chooseDirectionFromCapture(fromPit: pitIndex);
                   }
                   carryingSeedsFromPit(pitIndexFrom: pitIndex);
+                  print("assadsadsdsadsdassadsadsadsaadsd" +
+                      currentCarryingSeeds.toString());
+
                   if (currentCarryingSeeds > 0) {
                     pitsIndexesToAddSeed = sowing(
                         start: pitIndex,
