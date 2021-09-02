@@ -8,8 +8,8 @@ const northHouseIndex = 11;
 const activePitColor = Colors.greenAccent;
 
 /// INITIAL CONDITIONS
-const servesSeeds = 10;
-const homeSeedsCount = 12; //11, 20
+const servesSeeds = 22;
+const homeSeedsCount = 6; //11, 20
 const adjacentPitsSeedsCount = 2; // 9, 10, 21, 22
 
 /// 0   1   2   3   4   5   6   7
@@ -199,7 +199,7 @@ List<int> sowing(
 
       /// Remove initial index which holds value of the pit just collected
       // print(sowingIndexes);
-      print(sowingIndexes);
+      // print(sowingIndexes);
       // print(sowingIndexes.length);
       // print("########=========##########");
     }
