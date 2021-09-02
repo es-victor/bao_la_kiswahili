@@ -386,14 +386,13 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       pitsSeedsList[pitIndex + 8] = 0;
                       // isCapturedFromServe = true;
                       if (selectedDirection == 0) {
+                        print("77777777777777777777");
+
                         chooseDirectionFromCapture(fromPit: pitIndex);
                       }
                       carryingSeedsFromPit(pitIndexFrom: pitIndex);
-                      // selectedDirection = 0;
-                      // var dir = directionExceptions(pitIndex: pitIndex);
-                      // print(dir.toString() + "  dir asdasdasdasdsdasd");
-
-                      var startFrom =
+                      directionExceptions(pitIndex: pitIndex);
+                      int startFrom =
                           pitIndexToStartAfterCapture(pitIndex: pitIndex);
                       pitsIndexesToAddSeed = sowingAfterCaptureFromSowing(
                           start: startFrom,
@@ -406,15 +405,12 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       pitsSeedsList[pitIndex - 8] = 0;
                       // isCapturedFromServe = true;
                       if (selectedDirection == 0) {
+                        print("88888888888888");
                         chooseDirectionFromCapture(fromPit: pitIndex);
                       } else
                         carryingSeedsFromPit(pitIndexFrom: pitIndex);
-                      // selectedDirection = 0;
-                      // var dir = directionExceptions(pitIndex: pitIndex);
-                      // print(dir.toString() + "  dir asdasdasdasdsdasd");
-
-                      print("Nimebeba sijui nsenda awap South ");
-                      var startFrom =
+                      directionExceptions(pitIndex: pitIndex);
+                      int startFrom =
                           pitIndexToStartAfterCapture(pitIndex: pitIndex);
                       pitsIndexesToAddSeed = sowingAfterCaptureFromSowing(
                           start: startFrom,
