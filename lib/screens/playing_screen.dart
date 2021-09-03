@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:bao_la_kete/constants.dart';
 import 'package:flutter/material.dart';
 
+import 'center_line.dart';
+
 class PlayingScreen extends StatefulWidget {
   PlayingScreen({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -937,18 +939,23 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       child: serves(isNorth: true),
                     ),
                     Center(
-                      child: Container(
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          primary: true,
-                          crossAxisCount: 8,
-                          children: List.generate(
-                            pits,
-                            (i) {
-                              return pit(i: i, sMin: sMin);
-                            },
+                      child: Stack(
+                        children: [
+                          Container(
+                            child: GridView.count(
+                              shrinkWrap: true,
+                              primary: true,
+                              crossAxisCount: 8,
+                              children: List.generate(
+                                pits,
+                                (i) {
+                                  return pit(i: i, sMin: sMin);
+                                },
+                              ),
+                            ),
                           ),
-                        ),
+                          CenterLine()
+                        ],
                       ),
                     ),
                     Container(
@@ -1138,7 +1145,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.all(4.0),
+          padding: i > 7 && i < 24
+              ? EdgeInsets.only(top: 8, left: 4, right: 4, bottom: 4)
+              : EdgeInsets.all(4.0),
           child: Stack(
             children: [
               Container(
