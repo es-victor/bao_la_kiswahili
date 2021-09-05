@@ -18,13 +18,10 @@ class CenterLine extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             Container(
-              height: 2,
+              height: 4,
               decoration: BoxDecoration(
-                color: Colors.black87,
                 boxShadow: [
-                  BoxShadow(
-                    blurRadius: 0.5,
-                  ),
+                  BoxShadow(blurRadius: 0, color: Colors.black),
                 ],
               ),
               child: Row(
@@ -42,8 +39,8 @@ class CenterLine extends StatelessWidget {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.yellow.shade800,
-                              Color(0xff7D4829),
+                              Colors.yellow.shade200,
+                              Colors.black12,
                             ],
                           ),
                           boxShadow: [
@@ -67,8 +64,8 @@ class CenterLine extends StatelessWidget {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.yellow.shade800,
-                              Color(0xff7D4829),
+                              Colors.yellow.shade200,
+                              Colors.black12,
                             ],
                           ),
                           boxShadow: [
@@ -95,7 +92,8 @@ class CenterLine extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Container(
-                        color: Colors.grey.shade300,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade300, border: Border()),
                       ),
                       flex: 1,
                     ),

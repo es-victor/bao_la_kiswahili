@@ -3,8 +3,6 @@ import 'dart:math' as math;
 import 'package:bao_la_kete/constants.dart';
 import 'package:flutter/material.dart';
 
-import 'center_line.dart';
-
 class PlayingScreen extends StatefulWidget {
   PlayingScreen({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -18,19 +16,22 @@ class _PlayingScreenState extends State<PlayingScreen> {
   late int currentServesNorth = servesSeeds;
 
   /// North starts the game
-  late bool northIsPlaying = false;
+  late bool northIsPlaying = true;
   late bool winnerSouth = false;
   late bool winnerNorth = false;
   late bool currentCarryingSeedsFromServe = false;
-  late int homeSeeds = homeSeedsCount;
+  late int houseSeeds = houseSeedsCount;
   late bool northHouseFunctional = true;
   late bool southHouseFunctional = true;
   late int adjacentPitsSeeds = adjacentPitsSeedsCount;
   late List<int> pitsIndexesToAddSeed = [];
+  late List<int> nextPhasePitsStartMoveWithCapture = [];
+  late Map<String, List<int>> nextPhasePitsStartMoveWithCaptureHintsMap;
+  late List<int> viewHintCaptureMoveList = [];
   late Map<int, int> pitsSeedsList = {
     0: 0,
-    1: 0,
-    2: 0,
+    1: 1,
+    2: 1,
     3: 0,
     4: 0,
     5: 0,
@@ -39,25 +40,25 @@ class _PlayingScreenState extends State<PlayingScreen> {
     8: 0,
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
-    11: homeSeeds,
-    12: 0,
-    13: 0,
-    14: 0,
-    15: 0,
-    16: 0,
-    17: 0,
-    18: 0,
-    19: 0,
-    20: homeSeeds,
+    11: houseSeeds,
+    12: 1,
+    13: 2,
+    14: 1,
+    15: 1,
+    16: 1,
+    17: 1,
+    18: 1,
+    19: 1,
+    20: houseSeeds,
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
-    23: 0,
-    24: 0,
-    25: 0,
-    26: 0,
-    27: 0,
-    28: 0,
-    29: 0,
+    23: 1,
+    24: 1,
+    25: 1,
+    26: 1,
+    27: 1,
+    28: 1,
+    29: 1,
     30: 0,
     31: 0,
   };
@@ -89,7 +90,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       winnerSouth = false;
       winnerNorth = false;
       currentCarryingSeedsFromServe = false;
-      homeSeeds = homeSeedsCount;
+      houseSeeds = houseSeedsCount;
       northHouseFunctional = true;
       southHouseFunctional = true;
       adjacentPitsSeeds = adjacentPitsSeedsCount;
@@ -106,7 +107,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
         8: 0,
         9: adjacentPitsSeeds,
         10: adjacentPitsSeeds,
-        11: homeSeeds,
+        11: houseSeeds,
         12: 0,
         13: 0,
         14: 0,
@@ -115,7 +116,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
         17: 0,
         18: 0,
         19: 0,
-        20: homeSeeds,
+        20: houseSeeds,
         21: adjacentPitsSeeds,
         22: adjacentPitsSeeds,
         23: 0,
@@ -140,6 +141,12 @@ class _PlayingScreenState extends State<PlayingScreen> {
       isCapturedFromServe = false;
       possibleCapturePits = [];
     });
+  }
+
+  @override
+  void initState() {
+    checkForPossibleCaptureForNextPlayerMove(isNorthPlaying: northIsPlaying);
+    super.initState();
   }
 
   bool indicator({required int pitIndex}) {
@@ -336,6 +343,110 @@ class _PlayingScreenState extends State<PlayingScreen> {
     } else {
       northHouseFunctional = false;
     }
+  }
+
+  checkForPossibleCaptureForNextPlayerMove({required bool isNorthPlaying}) {
+    print("Naaaaaaangalia sasa hv");
+    if (isNorthPlaying && currentServesNorth > 0) {
+      print("North now pick 1 seed");
+      return;
+    } else if (!isNorthPlaying && currentServesSouth > 0) {
+      print("South now pick 1 seed");
+      return;
+    }
+    forceCaptureIfPossibleForNextPhase(isNorthPlaying: isNorthPlaying);
+  }
+
+  forceCaptureIfPossibleForNextPhase({required bool isNorthPlaying}) {
+    /// TODO
+    /// Check for non-empty pits
+    /// For each pit's seeds(must be more than 1) check if it can be sowed and end-up on capturing innerRow pit on either direction
+    List<int> pitIndexesToStartMove = [];
+    nextPhasePitsStartMoveWithCapture = []; //reset
+    nextPhasePitsStartMoveWithCaptureHintsMap = {}; // reset
+    if (isNorthPlaying) {
+      for (int i in northAntiClockwiseIndexes) {
+        if (pitsSeedsList[i]! > 1) {
+          pitIndexesToStartMove.add(i);
+        }
+      }
+    } else if (!isNorthPlaying) {
+      for (int i in southAntiClockwiseIndexes) {
+        if (pitsSeedsList[i]! > 1) {
+          pitIndexesToStartMove.add(i);
+        }
+      }
+    } else {
+      print("I have no idea what is happening right now!");
+      return;
+    }
+    if (pitIndexesToStartMove.isNotEmpty) {
+      print("You may start move from these $pitIndexesToStartMove");
+      checkForPossibleCaptureHints(
+          pitIndexesToStartMove: pitIndexesToStartMove,
+          isNorthPlaying: isNorthPlaying);
+    } else {
+      print("Sorry, you have no more move");
+    }
+  }
+
+  checkForPossibleCaptureHints(
+      {required List<int> pitIndexesToStartMove,
+      required bool isNorthPlaying}) {
+    for (int i in pitIndexesToStartMove) {
+      /// Check number of seeds in a pit, as Steps
+      /// Find the end pit of it is to be sowed
+      /// Check if end ends up in a capturing pits
+      int steps = pitsSeedsList[i]!;
+      List<int> listPathAntiClockwise =
+          sowing(start: i, steps: steps, dirAnticlockwise: -1);
+      List<int> listPathClockwise =
+          sowing(start: i, steps: steps, dirAnticlockwise: 1);
+      int listPathAntiClockwiseLast = listPathAntiClockwise.last;
+      int listPathClockwiseLast = listPathClockwise.last;
+
+      /// Now check the end pit on each list if it can capture
+      bool listPathAntiClockwiseCanCapture =
+          checkForPitIndexIfCanCapture(pitIndex: listPathAntiClockwiseLast) &&
+              (northInnerRow.contains(listPathAntiClockwiseLast) ||
+                  southInnerRow.contains(listPathAntiClockwiseLast)) &&
+              pitsSeedsList[listPathAntiClockwiseLast]! > 0;
+
+      bool listPathClockwiseCanCapture =
+          checkForPitIndexIfCanCapture(pitIndex: listPathClockwiseLast) &&
+              (northInnerRow.contains(listPathClockwiseLast) ||
+                  southInnerRow.contains(listPathClockwiseLast)) &&
+              pitsSeedsList[listPathClockwiseLast]! > 0;
+      if (listPathAntiClockwiseCanCapture) {
+        nextPhasePitsStartMoveWithCapture.add(i);
+        nextPhasePitsStartMoveWithCaptureHintsMap["$i-"] =
+            listPathAntiClockwise;
+      }
+      if (listPathClockwiseCanCapture) {
+        nextPhasePitsStartMoveWithCapture.add(i);
+        nextPhasePitsStartMoveWithCaptureHintsMap["$i+"] = listPathClockwise;
+      }
+      print(
+          "Steps $steps antiClockwise $listPathAntiClockwise / ${listPathAntiClockwiseCanCapture ? " CAPTURE" : "NO CAPTURE"}  and clockwise $listPathClockwise / ${listPathClockwiseCanCapture ? " CAPTURE" : "NO CAPTURE"}");
+    }
+    print(
+        "nextPhasePitsStartMoveWithCapture $nextPhasePitsStartMoveWithCapture");
+    print(
+        "nextPhasePitsStartMoveWithCaptureHintsMap $nextPhasePitsStartMoveWithCaptureHintsMap");
+  }
+
+  viewHintCaptureMove({required int pitIndex}) {
+    print("Showing hints for $pitIndex");
+    print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"] ?? []);
+    print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
+    setState(() {
+      viewHintCaptureMoveList =
+          nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"]!;
+      viewHintCaptureMoveList.addAll(
+          nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
+    });
+print("viewHintCaptureMoveList $viewHintCaptureMoveList");
+    /// Highlight path of a capture move
   }
 
   checkOtherInnerRowPitsWithMoreThanOneSeed({required int pitIndex}) {
@@ -578,6 +689,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
             if (currentCarryingSeeds == 0) {
               checkForWinner();
               northIsPlaying = !northIsPlaying;
+              checkForPossibleCaptureForNextPlayerMove(
+                  isNorthPlaying: northIsPlaying);
               selectedDirection = 0;
               isCapturedFromServe = false;
             }
@@ -601,13 +714,13 @@ class _PlayingScreenState extends State<PlayingScreen> {
       print("Seed from serves can only be added to innerRow");
       return;
     }
-
+    print(pitsIndexesToAddSeed);
     if (pitsIndexesToAddSeed.contains(pitIndex) &&
         pitsSeedsList[pitIndex]! > 0) {
       /// Can't add to single seed pit, IF it's house has no reputation AND there are other pits with more than one seed
       /// Check seeds on  reputation
       if (pitsSeedsList[pitIndex]! == 1) {
-        /// Check if it can capture
+        /// If No House, seed must be added to pits with more than 1 seed if present
 
         if (!checkForPitIndexIfCanCapture(pitIndex: pitIndex)) {
           if (!checkIfHouseStillHasReputation(
@@ -691,8 +804,29 @@ class _PlayingScreenState extends State<PlayingScreen> {
     }
   }
 
+  addSeedFromServeToHouseWithoutCapture({required int houseIndex}) {
+    setState(() {
+      northCarryingSeedFromServe = 0;
+      southCarryingSeedFromServe = 0;
+
+      /// Resetting
+      // pitsIndexesToAddSeed = [];
+      isCapturedFromServe = false;
+      print("Added from serve, WITHOUT capture");
+      chooseDirection(fromPit: houseIndex);
+      centerPitIndexFrom = houseIndex;
+
+      ///Emptying the pit
+      if (!currentCarryingSeedsFromServe) {
+        currentCarryingSeeds = 2;
+        pitsSeedsList[houseIndex] = pitsSeedsList[houseIndex]! - 1;
+        print("Remove one from House");
+      }
+    });
+  }
+
   ///TODO
-  List<int> forceCaptureFromServeIfPossible({required bool isNorthPlaying}) {
+  forceCaptureFromServeIfPossible({required bool isNorthPlaying}) {
     // List<int> possibleCapturePitsToPlay = [];
 
     ///Now check if there is any possible opposite seed(s) to capture
@@ -739,6 +873,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       }
       for (int i in southInnerRow) {
         if (pitsSeedsList[i]! > 0 && i != houseIndex) {
+          print("mimi nimekataaaaaaaa");
           return false;
         }
       }
@@ -752,6 +887,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       }
       for (int i in northInnerRow) {
         if (pitsSeedsList[i]! > 0 && i != houseIndex) {
+          print("mimi nimekataaaaaaaa");
           return false;
         }
       }
@@ -954,7 +1090,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                               ),
                             ),
                           ),
-                          CenterLine()
+                          // CenterLine()
                         ],
                       ),
                     ),
@@ -984,7 +1120,12 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   child: seedOnMove(isNorth: !northIsPlaying),
                 )
               : SizedBox.shrink(),
-          Positioned(child: Text(currentCarryingSeeds.toString()))
+          Positioned(
+            child: Text(
+              currentCarryingSeeds.toString(),
+              style: TextStyle(fontSize: 48, color: Colors.red),
+            ),
+          ),
         ],
       ),
     );
@@ -1073,17 +1214,39 @@ class _PlayingScreenState extends State<PlayingScreen> {
               southCarryingSeedFromServe == 1) {
             if (i == southHouseIndex || i == northHouseIndex) {
               /// Check if House is eligible
-              if (checkIfHouseStillHasReputation(houseIndex: i)) {
-                if (!checkIfHouseIsEligibleToAcceptSeedFromServe(
-                    houseIndex: i)) {
+              if (pitsIndexesToAddSeed.contains(i)) {
+                if (checkIfHouseStillHasReputation(houseIndex: i)) {
+                  print("pitsIndexesToAddSeed " +
+                      pitsIndexesToAddSeed.toString());
+                  // if (checkForPitIndexIfCanCapture(pitIndex: i)) {
+                  //   /// Add with capture
+                  //   addSingleSeedToPitFromServe(
+                  //     pitIndex: i,
+                  //   );
+                  //   return;
+                  // } else {
+                  //   /// Add without capture
+                  //   addSeedFromServeToHouseWithoutCapture(houseIndex: i);
+                  // }
+                  // return;
+                  if (!checkIfHouseIsEligibleToAcceptSeedFromServe(
+                      houseIndex: i)) {
+                    print(
+                        "FAILED! Can't add to House, House can't capture and there are other pits to play");
+                    return;
+                  }
                   print(
-                      "FAILED! Can't add to House, House can't capture and there are other pits to play");
-                  return;
+                      "House has reputation, still can ACCEPT as others innerRow pits don't qualify");
+                  if (checkForPitIndexIfCanCapture(pitIndex: i)) {
+                  } else {
+                    addSeedFromServeToHouseWithoutCapture(houseIndex: i);
+                    return;
+                  }
+                } else {
+                  print("House just LOST his reputation, So can ACCEPT");
                 }
-                print(
-                    "House has reputation, still can ACCEPT as others innerRow pits don't qualify");
               } else {
-                print("House just LOST his reputation, So can ACCEPT");
+                return;
               }
             }
             print("Add from serve");
@@ -1137,17 +1300,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
                 isCapturedFromServe = false;
                 centerPitIndexFrom = i;
                 currentCarryingSeeds = pitsSeedsList[i]!;
-
+                nextPhasePitsStartMoveWithCapture = []; //reset
+                viewHintCaptureMoveList = []; //reset
                 ///Emptying the pit
                 pitsSeedsList[i] = 0;
               });
             }
           }
         },
-        child: Padding(
-          padding: i > 7 && i < 24
-              ? EdgeInsets.only(top: 8, left: 4, right: 4, bottom: 4)
-              : EdgeInsets.all(4.0),
+        onLongPress: () {
+          if (nextPhasePitsStartMoveWithCapture.contains(i)) {
+            viewHintCaptureMove(pitIndex: i);
+          }
+        },
+        child: Container(
+          width: sMin / 48,
+          height: sMin / 48,
+          // margin: i > 7 && i < 24 ? EdgeInsets.only(top: 8) : EdgeInsets.all(0),
+          padding: EdgeInsets.all(4.0),
           child: Stack(
             children: [
               Container(
@@ -1185,7 +1355,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   },
                 ),
               ),
-              possibleCapturePits.contains(i)
+              possibleCapturePits.contains(i) ||
+                      nextPhasePitsStartMoveWithCapture.contains(i)
                   ? Positioned(
                       bottom: 0,
                       right: 0,
@@ -1324,9 +1495,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   ),
                 )
               : SizedBox(),
-          indicator(pitIndex: pit) &&
-                  (northCarryingSeedFromServe == 0 &&
-                      southCarryingSeedFromServe == 0)
+          (indicator(pitIndex: pit) &&
+                      (northCarryingSeedFromServe == 0 &&
+                          southCarryingSeedFromServe == 0)) ||
+                  viewHintCaptureMoveList.contains(pit)
               ? Positioned(
                   bottom: 0,
                   top: 0,
