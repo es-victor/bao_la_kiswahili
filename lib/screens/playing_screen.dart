@@ -30,8 +30,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
   late List<int> viewHintCaptureMoveList = [];
   late Map<int, int> pitsSeedsList = {
     0: 0,
-    1: 1,
-    2: 1,
+    1: 0,
+    2: 0,
     3: 0,
     4: 0,
     5: 0,
@@ -41,24 +41,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
     11: houseSeeds,
-    12: 1,
-    13: 2,
-    14: 1,
-    15: 1,
-    16: 1,
-    17: 1,
-    18: 1,
-    19: 1,
+    12: 0,
+    13: 0,
+    14: 0,
+    15: 0,
+    16: 0,
+    17: 0,
+    18: 0,
+    19: 0,
     20: houseSeeds,
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
-    23: 1,
-    24: 1,
-    25: 1,
-    26: 1,
-    27: 1,
-    28: 1,
-    29: 1,
+    23: 0,
+    24: 0,
+    25: 0,
+    26: 0,
+    27: 0,
+    28: 0,
+    29: 0,
     30: 0,
     31: 0,
   };
@@ -436,6 +436,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
   }
 
   viewHintCaptureMove({required int pitIndex}) {
+    /// Highlight path of a capture move
     print("Showing hints for $pitIndex");
     print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"] ?? []);
     print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
@@ -445,8 +446,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       viewHintCaptureMoveList.addAll(
           nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
     });
-print("viewHintCaptureMoveList $viewHintCaptureMoveList");
-    /// Highlight path of a capture move
+    print("viewHintCaptureMoveList $viewHintCaptureMoveList");
   }
 
   checkOtherInnerRowPitsWithMoreThanOneSeed({required int pitIndex}) {
