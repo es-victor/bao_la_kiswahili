@@ -1063,6 +1063,11 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   image: DecorationImage(
                     image: AssetImage('assets/images/bao-bg.jpg'),
                     fit: BoxFit.fill,
+                    colorFilter: ColorFilter.mode(
+                      Color(0xff402609),
+                      BlendMode.screen,
+                    ),
+                    alignment: Alignment.topLeft,
                   ),
                 ),
                 width: sMax * 2 / 3,
@@ -1070,10 +1075,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: true),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: serves(isNorth: true),
+                    // ),
                     Center(
                       child: Stack(
                         children: [
@@ -1094,10 +1099,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: false),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: serves(isNorth: false),
+                    // ),
                   ],
                 ),
               ),
@@ -1199,183 +1204,186 @@ class _PlayingScreenState extends State<PlayingScreen> {
     );
   }
 
-  Transform pit({required int i, required double sMin}) {
+  Container pit({required int i, required double sMin}) {
     bool isNorth = true;
     if (i >= pits / 2) {
       isNorth = false;
     }
-    return Transform(
-      alignment: Alignment.center,
-      transform:
-          i >= pits / 2 ? Matrix4.rotationZ(0) : Matrix4.rotationZ(math.pi),
-      child: InkWell(
-        onTap: () {
-          if (northCarryingSeedFromServe == 1 ||
-              southCarryingSeedFromServe == 1) {
-            if (i == southHouseIndex || i == northHouseIndex) {
-              /// Check if House is eligible
-              if (pitsIndexesToAddSeed.contains(i)) {
-                if (checkIfHouseStillHasReputation(houseIndex: i)) {
-                  print("pitsIndexesToAddSeed " +
-                      pitsIndexesToAddSeed.toString());
-                  // if (checkForPitIndexIfCanCapture(pitIndex: i)) {
-                  //   /// Add with capture
-                  //   addSingleSeedToPitFromServe(
-                  //     pitIndex: i,
-                  //   );
-                  //   return;
-                  // } else {
-                  //   /// Add without capture
-                  //   addSeedFromServeToHouseWithoutCapture(houseIndex: i);
-                  // }
-                  // return;
-                  if (!checkIfHouseIsEligibleToAcceptSeedFromServe(
-                      houseIndex: i)) {
+    return Container(
+      child: Transform(
+        alignment: Alignment.center,
+        transform: i >= pits / 2 ? Matrix4.rotationZ(0) : Matrix4.rotationZ(0),
+        child: InkWell(
+          onTap: () {
+            if (northCarryingSeedFromServe == 1 ||
+                southCarryingSeedFromServe == 1) {
+              if (i == southHouseIndex || i == northHouseIndex) {
+                /// Check if House is eligible
+                if (pitsIndexesToAddSeed.contains(i)) {
+                  if (checkIfHouseStillHasReputation(houseIndex: i)) {
+                    print("pitsIndexesToAddSeed " +
+                        pitsIndexesToAddSeed.toString());
+                    // if (checkForPitIndexIfCanCapture(pitIndex: i)) {
+                    //   /// Add with capture
+                    //   addSingleSeedToPitFromServe(
+                    //     pitIndex: i,
+                    //   );
+                    //   return;
+                    // } else {
+                    //   /// Add without capture
+                    //   addSeedFromServeToHouseWithoutCapture(houseIndex: i);
+                    // }
+                    // return;
+                    if (!checkIfHouseIsEligibleToAcceptSeedFromServe(
+                        houseIndex: i)) {
+                      print(
+                          "FAILED! Can't add to House, House can't capture and there are other pits to play");
+                      return;
+                    }
                     print(
-                        "FAILED! Can't add to House, House can't capture and there are other pits to play");
-                    return;
-                  }
-                  print(
-                      "House has reputation, still can ACCEPT as others innerRow pits don't qualify");
-                  if (checkForPitIndexIfCanCapture(pitIndex: i)) {
+                        "House has reputation, still can ACCEPT as others innerRow pits don't qualify");
+                    if (checkForPitIndexIfCanCapture(pitIndex: i)) {
+                    } else {
+                      addSeedFromServeToHouseWithoutCapture(houseIndex: i);
+                      return;
+                    }
                   } else {
-                    addSeedFromServeToHouseWithoutCapture(houseIndex: i);
-                    return;
+                    print("House just LOST his reputation, So can ACCEPT");
                   }
                 } else {
-                  print("House just LOST his reputation, So can ACCEPT");
-                }
-              } else {
-                return;
-              }
-            }
-            print("Add from serve");
-            addSingleSeedToPitFromServe(
-              pitIndex: i,
-            );
-          } else if (centerPitIndexFrom != -1) {
-            addSingleSeedToPit(
-              pitIndex: i,
-              centerIndex: centerPitIndexFrom,
-              isFromServe: false,
-            );
-          }
-          setActiveSelectedHole(i);
-        },
-        onDoubleTap: () {
-          if (isNorth && currentServesNorth > 0 && northIsPlaying) {
-            print("Play the serves North");
-            return;
-          } else if (!isNorth && currentServesSouth > 0 && !northIsPlaying) {
-            print("Play the serves South");
-            return;
-          }
-
-          /// Can't carry if you have currentCarryingSeeds in hand or on pit with less than 2 seeds
-          if (currentCarryingSeeds > 0 || pitsSeedsList[i]! < 2) {
-            return;
-          }
-          if ((i < pits / 2 &&
-                  northIsPlaying &&
-                  northCarryingSeedFromServe == 0) ||
-              (i >= pits / 2 &&
-                  !northIsPlaying &&
-                  southCarryingSeedFromServe == 0)) {
-            chooseDirection(fromPit: i);
-
-            /// Check if is House
-            if (i == northHouseIndex || i == southHouseIndex) {
-              if (checkIfHouseStillHasReputation(houseIndex: i)) {
-                if (!checkIfHouseIsEligibleToStartTheMove(houseIndex: i)) {
-                  /// TODO
                   return;
                 }
               }
+              print("Add from serve");
+              addSingleSeedToPitFromServe(
+                pitIndex: i,
+              );
+            } else if (centerPitIndexFrom != -1) {
+              addSingleSeedToPit(
+                pitIndex: i,
+                centerIndex: centerPitIndexFrom,
+                isFromServe: false,
+              );
             }
-            if (currentCarryingSeeds == 0) {
-              setState(() {
-                /// TODO
-                /// With exception to NAMUA start, limited to ONLY non-empty pits
-                /// Reset capturedFromServe bool value
-                isCapturedFromServe = false;
-                centerPitIndexFrom = i;
-                currentCarryingSeeds = pitsSeedsList[i]!;
-                nextPhasePitsStartMoveWithCapture = []; //reset
-                viewHintCaptureMoveList = []; //reset
-                ///Emptying the pit
-                pitsSeedsList[i] = 0;
-              });
+            setActiveSelectedHole(i);
+          },
+          onDoubleTap: () {
+            if (isNorth && currentServesNorth > 0 && northIsPlaying) {
+              print("Play the serves North");
+              return;
+            } else if (!isNorth && currentServesSouth > 0 && !northIsPlaying) {
+              print("Play the serves South");
+              return;
             }
-          }
-        },
-        onLongPress: () {
-          if (nextPhasePitsStartMoveWithCapture.contains(i)) {
-            viewHintCaptureMove(pitIndex: i);
-          }
-        },
-        child: Container(
-          width: sMin / 48,
-          height: sMin / 48,
-          // margin: i > 7 && i < 24 ? EdgeInsets.only(top: 8) : EdgeInsets.all(0),
-          padding: EdgeInsets.all(4.0),
-          child: Stack(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/bao-bg.jpg'),
-                    fit: BoxFit.fill,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black12,
-                      BlendMode.colorBurn,
-                    ),
-                  ),
-                  shape: i == southHouseIndex || i == northHouseIndex
-                      ? BoxShape.rectangle
-                      : BoxShape.circle,
-                  gradient: RadialGradient(
-                    radius: 3,
-                    center: Alignment.center,
-                    colors: [
-                      Colors.transparent,
-                      Colors.transparent,
-                    ],
-                  ),
-                  color: Colors.grey,
-                ),
 
-                /// TODO
-                child: kete(i, pitsSeedsList[i]!, sMin, false),
-              ),
-              Positioned(
-                child: Builder(
-                  builder: (BuildContext context) {
-                    return pitItem(i);
-                  },
-                ),
-              ),
-              possibleCapturePits.contains(i) ||
-                      nextPhasePitsStartMoveWithCapture.contains(i)
-                  ? Positioned(
-                      bottom: 0,
-                      right: 0,
-                      left: 0,
-                      child: Builder(
-                        builder: (BuildContext context) {
-                          return Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.green,
-                            ),
-                          );
-                        },
+            /// Can't carry if you have currentCarryingSeeds in hand or on pit with less than 2 seeds
+            if (currentCarryingSeeds > 0 || pitsSeedsList[i]! < 2) {
+              return;
+            }
+            if ((i < pits / 2 &&
+                    northIsPlaying &&
+                    northCarryingSeedFromServe == 0) ||
+                (i >= pits / 2 &&
+                    !northIsPlaying &&
+                    southCarryingSeedFromServe == 0)) {
+              chooseDirection(fromPit: i);
+
+              /// Check if is House
+              if (i == northHouseIndex || i == southHouseIndex) {
+                if (checkIfHouseStillHasReputation(houseIndex: i)) {
+                  if (!checkIfHouseIsEligibleToStartTheMove(houseIndex: i)) {
+                    /// TODO
+                    return;
+                  }
+                }
+              }
+              if (currentCarryingSeeds == 0) {
+                setState(() {
+                  /// TODO
+                  /// With exception to NAMUA start, limited to ONLY non-empty pits
+                  /// Reset capturedFromServe bool value
+                  isCapturedFromServe = false;
+                  centerPitIndexFrom = i;
+                  currentCarryingSeeds = pitsSeedsList[i]!;
+                  nextPhasePitsStartMoveWithCapture = []; //reset
+                  viewHintCaptureMoveList = []; //reset
+                  ///Emptying the pit
+                  pitsSeedsList[i] = 0;
+                });
+              }
+            }
+          },
+          onLongPress: () {
+            if (nextPhasePitsStartMoveWithCapture.contains(i)) {
+              viewHintCaptureMove(pitIndex: i);
+            }
+          },
+          child: Container(
+            width: sMin / 48,
+            height: sMin / 48,
+            padding: EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/bao-bg.jpg'),
+                      fit: BoxFit.fill,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black12,
+                        BlendMode.colorBurn,
                       ),
-                    )
-                  : SizedBox(),
-            ],
+                    ),
+                    shape: i == southHouseIndex || i == northHouseIndex
+                        ? BoxShape.rectangle
+                        : BoxShape.circle,
+                    gradient: RadialGradient(
+                      radius: 3,
+                      center: Alignment.center,
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                      ],
+                    ),
+                    color: Colors.grey,
+                  ),
+
+                  /// TODO
+                  // child: kete(i, pitsSeedsList[i]!, sMin, false),
+                ),
+                Positioned(
+                  child: Builder(
+                    builder: (BuildContext context) {
+                      return pitItem(i);
+                    },
+                  ),
+                ),
+                possibleCapturePits.contains(i) ||
+                        nextPhasePitsStartMoveWithCapture.contains(i)
+                    ? Positioned(
+                        bottom: 0,
+                        right: 0,
+                        left: 0,
+                        child: Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.green,
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : SizedBox(),
+                Container(
+                  child: kete(i, pitsSeedsList[i]!, sMin, false),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -1386,19 +1394,32 @@ class _PlayingScreenState extends State<PlayingScreen> {
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        border: Border.all(
-          color: activePit == i ? activePitColor : Color(0xff7D4829),
-          width: 1,
-        ),
+        // border: Border.all(
+        // color: activePit == i ? activePitColor : Color(0xffFFBD5E),
+        // width: 1,
+        // style: BorderStyle.none,
+        // ),
         shape: i == southHouseIndex || i == northHouseIndex
             ? BoxShape.rectangle
             : BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xffC3762E),
+          ),
+          BoxShadow(
+            color: Color(0xffFFBD5E),
+            spreadRadius: -10,
+            blurRadius: 4,
+          ),
+        ],
         gradient: RadialGradient(
-          radius: 1.3,
-          center: Alignment.center,
+          radius: 0.9,
+          center: Alignment(0.5, 0.5),
+          focalRadius: 0.01,
+          focal: Alignment(0.4, 0.3),
           colors: [
-            Colors.transparent,
-            Colors.black87,
+            Color(0xffe89635),
+            Colors.black38,
           ],
         ),
       ),
@@ -1432,6 +1453,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(shape: BoxShape.circle),
       child: Stack(
+        clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
           Container(),
@@ -1455,6 +1477,14 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       width: w / 32,
                       height: w / 32,
                       decoration: BoxDecoration(
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.black12,
+                        //     blurRadius: 2,
+                        //     spreadRadius: 0.5,
+                        //     offset: Offset(-1, 1),
+                        //   ),
+                        // ],
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           radius: 1,
