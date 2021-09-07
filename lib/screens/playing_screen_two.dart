@@ -174,7 +174,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title:
-                Text("${winnerNorth ? "North has Won!!!" : "South has Won!!"}"),
+            Text("${winnerNorth ? "North has Won!!!" : "South has Won!!"}"),
             actions: [
               InkWell(
                 child: Padding(
@@ -219,7 +219,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       northCarryingSeedFromServe = 1;
       pitsIndexesToAddSeed = northAntiClockwiseIndexes;
       var possiblePitsWithCapture =
-          forceCaptureFromServeIfPossible(isNorthPlaying: northIsPlaying);
+      forceCaptureFromServeIfPossible(isNorthPlaying: northIsPlaying);
 
       /// Check for possible force capture
       if (possiblePitsWithCapture.isNotEmpty) {
@@ -237,7 +237,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       southCarryingSeedFromServe = 1;
       pitsIndexesToAddSeed = southAntiClockwiseIndexes;
       var possiblePitsWithCapture =
-          forceCaptureFromServeIfPossible(isNorthPlaying: northIsPlaying);
+      forceCaptureFromServeIfPossible(isNorthPlaying: northIsPlaying);
 
       /// Check for possible force capture
       if (possiblePitsWithCapture.isNotEmpty) {
@@ -346,6 +346,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
   }
 
   checkForPossibleCaptureForNextPlayerMove({required bool isNorthPlaying}) {
+    print("Naaaaaaangalia sasa hv");
     if (isNorthPlaying && currentServesNorth > 0) {
       print("North now pick 1 seed");
       return;
@@ -391,16 +392,16 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
   checkForPossibleCaptureHints(
       {required List<int> pitIndexesToStartMove,
-      required bool isNorthPlaying}) {
+        required bool isNorthPlaying}) {
     for (int i in pitIndexesToStartMove) {
       /// Check number of seeds in a pit, as Steps
       /// Find the end pit of it is to be sowed
       /// Check if end ends up in a capturing pits
       int steps = pitsSeedsList[i]!;
       List<int> listPathAntiClockwise =
-          sowing(start: i, steps: steps, dirAnticlockwise: -1);
+      sowing(start: i, steps: steps, dirAnticlockwise: -1);
       List<int> listPathClockwise =
-          sowing(start: i, steps: steps, dirAnticlockwise: 1);
+      sowing(start: i, steps: steps, dirAnticlockwise: 1);
       int listPathAntiClockwiseLast = listPathAntiClockwise.last;
       int listPathClockwiseLast = listPathClockwise.last;
 
@@ -441,7 +442,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
     print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
     setState(() {
       viewHintCaptureMoveList =
-          nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"]!;
+      nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"]!;
       viewHintCaptureMoveList.addAll(
           nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
     });
@@ -630,7 +631,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       carryingSeedsFromPit(pitIndexFrom: pitIndex);
                       directionExceptions(pitIndex: pitIndex);
                       int startFrom =
-                          pitIndexToStartAfterCapture(pitIndex: pitIndex);
+                      pitIndexToStartAfterCapture(pitIndex: pitIndex);
                       pitsIndexesToAddSeed = sowingAfterCaptureFromSowing(
                           start: startFrom,
                           steps: currentCarryingSeeds,
@@ -651,7 +652,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                         carryingSeedsFromPit(pitIndexFrom: pitIndex);
                       directionExceptions(pitIndex: pitIndex);
                       int startFrom =
-                          pitIndexToStartAfterCapture(pitIndex: pitIndex);
+                      pitIndexToStartAfterCapture(pitIndex: pitIndex);
                       pitsIndexesToAddSeed = sowingAfterCaptureFromSowing(
                           start: startFrom,
                           steps: currentCarryingSeeds,
@@ -970,11 +971,11 @@ class _PlayingScreenState extends State<PlayingScreen> {
   pickFromServes(bool isNorth) {
     isNorth
         ? setState(() {
-            currentServesNorth != 0 ? pickFromNorthServes() : 0;
-          })
+      currentServesNorth != 0 ? pickFromNorthServes() : 0;
+    })
         : setState(() {
-            currentServesSouth != 0 ? pickFromSouthServes() : 0;
-          });
+      currentServesSouth != 0 ? pickFromSouthServes() : 0;
+    });
   }
 
   List<int> directionOptions({required int fromPit}) {
@@ -1069,15 +1070,15 @@ class _PlayingScreenState extends State<PlayingScreen> {
                     alignment: Alignment.topLeft,
                   ),
                 ),
-                width: sMin * 3 / 2,
-                height: sMin * 3 / 4,
+                width: sMax * 2 / 3,
+                height: sMin * 0.95,
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: true, w: sMin),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: serves(isNorth: true),
+                    // ),
                     Center(
                       child: Stack(
                         children: [
@@ -1088,7 +1089,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                               crossAxisCount: 8,
                               children: List.generate(
                                 pits,
-                                (i) {
+                                    (i) {
                                   return pit(i: i, sMin: sMin);
                                 },
                               ),
@@ -1098,10 +1099,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: false, w: sMin),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: serves(isNorth: false),
+                    // ),
                   ],
                 ),
               ),
@@ -1112,17 +1113,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
           northCarryingSeedFromServe == 1
               ? Positioned(
-                  top: sMin * 0.05,
-                  left: sMin * 0.05,
-                  child: seedOnMove(isNorth: northIsPlaying),
-                )
+            top: sMin * 0.05,
+            left: sMin * 0.05,
+            child: seedOnMove(isNorth: northIsPlaying),
+          )
               : SizedBox.shrink(),
           southCarryingSeedFromServe == 1
               ? Positioned(
-                  bottom: sMin * 0.05,
-                  right: sMin * 0.05,
-                  child: seedOnMove(isNorth: !northIsPlaying),
-                )
+            bottom: sMin * 0.05,
+            right: sMin * 0.05,
+            child: seedOnMove(isNorth: !northIsPlaying),
+          )
               : SizedBox.shrink(),
           Positioned(
             child: Text(
@@ -1135,7 +1136,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
     );
   }
 
-  Column serves({required bool isNorth, required double w}) {
+  Column serves({required bool isNorth}) {
     return Column(
       children: [
         InkWell(
@@ -1190,11 +1191,13 @@ class _PlayingScreenState extends State<PlayingScreen> {
             ),
             child: isNorth
                 ? Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationZ(math.pi),
-                    child: kete(-2, currentServesNorth, w, true),
-                  )
-                : kete(-2, currentServesSouth, w, true),
+              alignment: Alignment.center,
+              transform: Matrix4.rotationZ(math.pi),
+              child: kete(-2, currentServesNorth,
+                  MediaQuery.of(context).size.shortestSide, true),
+            )
+                : kete(-2, currentServesSouth,
+                MediaQuery.of(context).size.shortestSide, true),
           ),
         ),
       ],
@@ -1278,8 +1281,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
               return;
             }
             if ((i < pits / 2 &&
-                    northIsPlaying &&
-                    northCarryingSeedFromServe == 0) ||
+                northIsPlaying &&
+                northCarryingSeedFromServe == 0) ||
                 (i >= pits / 2 &&
                     !northIsPlaying &&
                     southCarryingSeedFromServe == 0)) {
@@ -1316,11 +1319,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
             }
           },
           child: Container(
-            width: sMin * 3 / 16 * 22 / 24,
-            height: sMin * 3 / 16 * 22 / 24,
-            padding: EdgeInsets.all(
-              sMin * 3 / 16 * 1 / 24,
-            ),
+            width: sMin / 48,
+            height: sMin / 48,
+            padding: EdgeInsets.all(4.0),
             child: Stack(
               children: [
                 Container(
@@ -1359,24 +1360,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   ),
                 ),
                 possibleCapturePits.contains(i) ||
-                        nextPhasePitsStartMoveWithCapture.contains(i)
+                    nextPhasePitsStartMoveWithCapture.contains(i)
                     ? Positioned(
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.green,
-                              ),
-                            );
-                          },
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
+                  child: Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.green,
                         ),
-                      )
+                      );
+                    },
+                  ),
+                )
                     : SizedBox(),
                 Container(
                   child: kete(i, pitsSeedsList[i]!, sMin, false),
@@ -1465,13 +1466,13 @@ class _PlayingScreenState extends State<PlayingScreen> {
                 clipBehavior: Clip.hardEdge,
                 children: [
                   for (var j = 0;
-                      j <
-                          (seeds < 9
-                              ? seeds
-                              : isOnServes
-                                  ? seeds
-                                  : 9);
-                      j++)
+                  j <
+                      (seeds < 9
+                          ? seeds
+                          : isOnServes
+                          ? seeds
+                          : 9);
+                  j++)
                     Container(
                       width: w / 32,
                       height: w / 32,
@@ -1501,45 +1502,45 @@ class _PlayingScreenState extends State<PlayingScreen> {
           ),
           isOnServes && seeds > 9
               ? Positioned(
-                  bottom: 0,
-                  top: 0,
-                  right: 0,
-                  left: 0,
-                  child: Center(
-                    child: Container(
-                      width: w / 16,
-                      height: w / 16,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color:
-                            activePit == pit ? activePitColor : Colors.white38,
-                        shape: pit == southHouseIndex || pit == northHouseIndex
-                            ? BoxShape.rectangle
-                            : BoxShape.circle,
-                      ),
-                      child: Text(
-                        seeds.toString(),
-                      ),
-                    ),
-                  ),
-                )
+            bottom: 0,
+            top: 0,
+            right: 0,
+            left: 0,
+            child: Center(
+              child: Container(
+                width: w / 16,
+                height: w / 16,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color:
+                  activePit == pit ? activePitColor : Colors.white38,
+                  shape: pit == southHouseIndex || pit == northHouseIndex
+                      ? BoxShape.rectangle
+                      : BoxShape.circle,
+                ),
+                child: Text(
+                  seeds.toString(),
+                ),
+              ),
+            ),
+          )
               : SizedBox(),
           (indicator(pitIndex: pit) &&
-                      (northCarryingSeedFromServe == 0 &&
-                          southCarryingSeedFromServe == 0)) ||
-                  viewHintCaptureMoveList.contains(pit)
+              (northCarryingSeedFromServe == 0 &&
+                  southCarryingSeedFromServe == 0)) ||
+              viewHintCaptureMoveList.contains(pit)
               ? Positioned(
-                  bottom: 0,
-                  top: 0,
-                  right: 0,
-                  left: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.greenAccent.withOpacity(0.2),
-                    ),
-                  ),
-                )
+            bottom: 0,
+            top: 0,
+            right: 0,
+            left: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.greenAccent.withOpacity(0.2),
+              ),
+            ),
+          )
               : SizedBox(),
         ],
       ),
