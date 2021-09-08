@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:bao_la_kete/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PlayingScreen extends StatefulWidget {
@@ -11,7 +12,8 @@ class PlayingScreen extends StatefulWidget {
   _PlayingScreenState createState() => _PlayingScreenState();
 }
 
-class _PlayingScreenState extends State<PlayingScreen> {
+class _PlayingScreenState extends State<PlayingScreen>
+    with SingleTickerProviderStateMixin {
   late int currentServesSouth = servesSeeds;
   late int currentServesNorth = servesSeeds;
 
@@ -79,6 +81,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
   int rightIndicator = -1;
   int leftIndicator = -1;
   int nextComingPitToAddSeed = -1;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   resetGame() {
     print("Reset");
     setState(() {
@@ -95,6 +100,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
       southHouseFunctional = true;
       adjacentPitsSeeds = adjacentPitsSeedsCount;
       pitsIndexesToAddSeed = [];
+      nextPhasePitsStartMoveWithCapture = [];
+      viewHintCaptureMoveList = [];
+      possibleCapturePits = []; // RESET PITS HINTS
       pitsSeedsList = {
         0: 0,
         1: 0,
@@ -145,8 +153,25 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
   @override
   void initState() {
+    _animationController = new AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 600),
+        upperBound: 1.0,
+        value: 0.2,
+        lowerBound: 0.2);
+    _animationController.repeat(reverse: true);
+
+    _animation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+
     checkForPossibleCaptureForNextPlayerMove(isNorthPlaying: northIsPlaying);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   bool indicator({required int pitIndex}) {
@@ -645,7 +670,6 @@ class _PlayingScreenState extends State<PlayingScreen> {
                       pitsSeedsList[pitIndex - 8] = 0;
                       // isCapturedFromServe = true;
                       if (selectedDirection == 0) {
-                        print("88888888888888");
                         chooseDirectionFromCapture(fromPit: pitIndex);
                       } else
                         carryingSeedsFromPit(pitIndexFrom: pitIndex);
@@ -915,6 +939,33 @@ class _PlayingScreenState extends State<PlayingScreen> {
     return true;
   }
 
+  checkIfThereAreOtherPitsWithMoreThanOneSeed(
+      {required bool isNorth, required int pitIndex}) {
+    if (isNorth) {
+      for (int i in northAntiClockwiseIndexes) {
+        if (pitsSeedsList[i]! > 1 && i != pitIndex) {
+          if (i == 11 && checkIfHouseStillHasReputation(houseIndex: 11)) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      }
+      return false;
+    } else {
+      for (int i in southAntiClockwiseIndexes) {
+        if (pitsSeedsList[i]! > 1 && i != pitIndex) {
+          if (i == 20 && checkIfHouseStillHasReputation(houseIndex: 20)) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+  }
+
   chooseDirection({required int fromPit}) {
     List<int> returned = directionOptions(fromPit: fromPit);
     int left = returned[0];
@@ -1068,39 +1119,33 @@ class _PlayingScreenState extends State<PlayingScreen> {
                     ),
                     alignment: Alignment.topLeft,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color(0xff402609),
+                        blurRadius: 2,
+                        spreadRadius: 4),
+                  ],
                 ),
                 width: sMin * 3 / 2,
                 height: sMin * 3 / 4,
-                child: ListView(
-                  shrinkWrap: true,
+                child: Stack(
+                  // shrinkWrap: true,
+                  // clipBehavior: Clip.none,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: true, w: sMin),
-                    ),
                     Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            child: GridView.count(
-                              shrinkWrap: true,
-                              primary: true,
-                              crossAxisCount: 8,
-                              children: List.generate(
-                                pits,
-                                (i) {
-                                  return pit(i: i, sMin: sMin);
-                                },
-                              ),
-                            ),
+                      child: Container(
+                        child: GridView.count(
+                          shrinkWrap: true,
+                          primary: true,
+                          crossAxisCount: 8,
+                          children: List.generate(
+                            pits,
+                            (i) {
+                              return pit(i: i, sMin: sMin);
+                            },
                           ),
-                          // CenterLine()
-                        ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: serves(isNorth: false, w: sMin),
                     ),
                   ],
                 ),
@@ -1109,7 +1154,26 @@ class _PlayingScreenState extends State<PlayingScreen> {
           ),
 
           /// SEED FROM SERVES ON MOVE
-
+          Positioned(
+            top: 0,
+            height: sMin * 1 / 8,
+            left: 0,
+            right: 0,
+            child: Container(
+              alignment: Alignment.center,
+              child: serves(isNorth: true, w: sMin),
+            ),
+          ),
+          Positioned(
+            height: sMin * 1 / 8,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              alignment: Alignment.center,
+              child: serves(isNorth: false, w: sMin),
+            ),
+          ),
           northCarryingSeedFromServe == 1
               ? Positioned(
                   top: sMin * 0.05,
@@ -1135,8 +1199,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
     );
   }
 
-  Column serves({required bool isNorth, required double w}) {
-    return Column(
+  Wrap serves({required bool isNorth, required double w}) {
+    return Wrap(
       children: [
         InkWell(
           onTap: () {
@@ -1163,30 +1227,24 @@ class _PlayingScreenState extends State<PlayingScreen> {
             pickFromServes(isNorth);
           },
           child: Container(
-            padding: EdgeInsets.all(8),
+            // padding: EdgeInsets.all(8),
+            width: w * 3 / 2,
+
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/bao-bg.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.black12,
-                  BlendMode.colorBurn,
+                  Color(0xff402609),
+                  BlendMode.screen,
                 ),
               ),
+              boxShadow: [
+                BoxShadow(
+                    color: Color(0xff402609), blurRadius: 2, spreadRadius: 4),
+              ],
               borderRadius: BorderRadius.circular(
                   MediaQuery.of(context).size.shortestSide),
-              border: Border.all(
-                width: 1,
-                color: Colors.brown.shade600,
-              ),
-              gradient: RadialGradient(
-                radius: 1.3,
-                center: Alignment.center,
-                colors: [
-                  Colors.transparent,
-                  Color(0xff7D4829),
-                ],
-              ),
             ),
             child: isNorth
                 ? Transform(
@@ -1212,6 +1270,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
         transform: i >= pits / 2 ? Matrix4.rotationZ(0) : Matrix4.rotationZ(0),
         child: InkWell(
           onTap: () {
+            print("okay");
             if (northCarryingSeedFromServe == 1 ||
                 southCarryingSeedFromServe == 1) {
               if (i == southHouseIndex || i == northHouseIndex) {
@@ -1276,6 +1335,16 @@ class _PlayingScreenState extends State<PlayingScreen> {
             /// Can't carry if you have currentCarryingSeeds in hand or on pit with less than 2 seeds
             if (currentCarryingSeeds > 0 || pitsSeedsList[i]! < 2) {
               return;
+            }
+
+            /// Can not sow from a pit with more than 15 seeds
+            if (pitsSeedsList[i]! > 15) {
+              if (checkIfThereAreOtherPitsWithMoreThanOneSeed(
+                  isNorth: isNorth, pitIndex: i)) {
+                print(
+                    "Can not sow from a pit with more than 15 seeds, while there are other pits with more than one seed to play");
+                return;
+              }
             }
             if ((i < pits / 2 &&
                     northIsPlaying &&
@@ -1364,19 +1433,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
                         bottom: 0,
                         right: 0,
                         left: 0,
-                        child: Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.green,
-                              ),
-                            );
-                          },
-                        ),
-                      )
+                        child: Opacity(
+                          opacity: 1.0,
+                          child: Container(
+                            width: sMin / 32,
+                            height: sMin / 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ))
                     : SizedBox(),
                 Container(
                   child: kete(i, pitsSeedsList[i]!, sMin, false),
@@ -1499,7 +1566,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
               ),
             ),
           ),
-          isOnServes && seeds > 9
+          seeds > 9
               ? Positioned(
                   bottom: 0,
                   top: 0,
@@ -1536,7 +1603,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.greenAccent.withOpacity(0.2),
+                      color: Colors.greenAccent.withOpacity(0.3),
                     ),
                   ),
                 )
