@@ -44,13 +44,13 @@ class _PlayingScreenState extends State<PlayingScreen>
     10: adjacentPitsSeeds,
     11: houseSeeds,
     12: 0,
-    13: 0,
+    13: 3,
     14: 0,
     15: 0,
     16: 0,
     17: 0,
-    18: 0,
-    19: 0,
+    18: 1,
+    19: 1,
     20: houseSeeds,
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
@@ -551,55 +551,58 @@ class _PlayingScreenState extends State<PlayingScreen>
     required int centerIndex,
     required bool isFromServe,
   }) {
-    /// TODO
-    /// Where to add seed
-    /// In which direction to add seed
-    if (currentCarryingSeeds != 0 && selectedDirection == 0) {
-      print("Nimeishia hapaaaaaaaaa");
+    setState(() {
+      /// TODO
+      /// Where to add seed
+      /// In which direction to add seed
+      if (currentCarryingSeeds != 0 && selectedDirection == 0) {
+        print("Nimeishia hapaaaaaaaaa");
+        print(pitsIndexesToAddSeed);
 
-      /// SET DIRECTION FOR SOWING
-      if (leftClockwiseArrowIndicator == pitIndex) {
-        if (isCapturedFromServe) {
-          selectedDirection = -1;
-          pitsIndexesToAddSeed = [
-            leftClockwiseArrowIndicator,
-            ...sowingAfterCapture(
-                start: leftClockwiseArrowIndicator,
+        /// SET DIRECTION FOR SOWING
+        if (leftClockwiseArrowIndicator == pitIndex) {
+          if (isCapturedFromServe) {
+            selectedDirection = -1;
+            pitsIndexesToAddSeed = [
+              leftClockwiseArrowIndicator,
+              ...sowingAfterCapture(
+                  start: leftClockwiseArrowIndicator,
+                  steps: currentCarryingSeeds,
+                  dirAnticlockwise: selectedDirection)
+            ];
+            pitsIndexesToAddSeed.removeLast();
+            isCapturedFromServe = false;
+          } else {
+            selectedDirection = 1;
+            pitsIndexesToAddSeed = sowing(
+                start: centerIndex,
                 steps: currentCarryingSeeds,
-                dirAnticlockwise: selectedDirection)
-          ];
-          pitsIndexesToAddSeed.removeLast();
-          isCapturedFromServe = false;
-        } else {
-          selectedDirection = 1;
-          pitsIndexesToAddSeed = sowing(
-              start: centerIndex,
-              steps: currentCarryingSeeds,
-              dirAnticlockwise: selectedDirection);
-        }
-      } else if (rightClockwiseArrowIndicator == pitIndex) {
-        if (isCapturedFromServe) {
-          selectedDirection = 1;
-          pitsIndexesToAddSeed = [
-            rightClockwiseArrowIndicator,
-            ...sowingAfterCapture(
-                start: rightClockwiseArrowIndicator,
+                dirAnticlockwise: selectedDirection);
+          }
+        } else if (rightClockwiseArrowIndicator == pitIndex) {
+          if (isCapturedFromServe) {
+            selectedDirection = 1;
+            pitsIndexesToAddSeed = [
+              rightClockwiseArrowIndicator,
+              ...sowingAfterCapture(
+                  start: rightClockwiseArrowIndicator,
+                  steps: currentCarryingSeeds,
+                  dirAnticlockwise: selectedDirection)
+            ];
+
+            pitsIndexesToAddSeed.removeLast();
+            isCapturedFromServe = false;
+          } else {
+            selectedDirection = -1;
+            pitsIndexesToAddSeed = sowing(
+                start: centerIndex,
                 steps: currentCarryingSeeds,
-                dirAnticlockwise: selectedDirection)
-          ];
-          pitsIndexesToAddSeed.removeLast();
-          isCapturedFromServe = false;
-        } else {
-          selectedDirection = -1;
-          pitsIndexesToAddSeed = sowing(
-              start: centerIndex,
-              steps: currentCarryingSeeds,
-              dirAnticlockwise: selectedDirection);
+                dirAnticlockwise: selectedDirection);
+          }
         }
       }
-    }
-    setState(() {
       if (currentCarryingSeeds > 0) {
+        print("ashshasashsas");
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
             if (pitsIndexesToAddSeed.length == 1) {
@@ -649,7 +652,6 @@ class _PlayingScreenState extends State<PlayingScreen>
                       // isCapturedFromServe = true;
                       if (selectedDirection == 0) {
                         print("77777777777777777777");
-
                         chooseDirectionFromCapture(fromPit: pitIndex);
                       }
                       carryingSeedsFromPit(pitIndexFrom: pitIndex);
@@ -737,7 +739,6 @@ class _PlayingScreenState extends State<PlayingScreen>
       print("Seed from serves can only be added to innerRow");
       return;
     }
-    print(pitsIndexesToAddSeed);
     if (pitsIndexesToAddSeed.contains(pitIndex) &&
         pitsSeedsList[pitIndex]! > 0) {
       /// Can't add to single seed pit, IF it's house has no reputation AND there are other pits with more than one seed
@@ -762,6 +763,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
           print("Now capturing from South");
           if (pitIndex + 8 == southHouseIndex) {
+            print("Now capturing from South house");
             updateHouseFunctional(houseIndex: southHouseIndex);
           }
           currentCarryingSeeds = pitsSeedsList[pitIndex + 8]!;
@@ -776,6 +778,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                 steps: currentCarryingSeeds,
                 dirAnticlockwise: selectedDirection);
           } else {
+            pitsIndexesToAddSeed = []; // reset after capture options
             chooseDirectionFromCapture(fromPit: pitIndex);
           }
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
@@ -786,6 +789,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         } else if (pitIndex >= 16 && pitsSeedsList[pitIndex - 8]! > 0) {
           print("Now capturing from North");
           if (pitIndex - 8 == northHouseIndex) {
+            print("Now capturing from North house");
             updateHouseFunctional(houseIndex: northHouseIndex);
           }
           currentCarryingSeeds = pitsSeedsList[pitIndex - 8]!;
@@ -799,6 +803,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                 steps: currentCarryingSeeds,
                 dirAnticlockwise: selectedDirection);
           } else {
+            pitsIndexesToAddSeed = []; // reset after capture options
             chooseDirectionFromCapture(fromPit: pitIndex);
           }
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
@@ -1270,7 +1275,8 @@ class _PlayingScreenState extends State<PlayingScreen>
         transform: i >= pits / 2 ? Matrix4.rotationZ(0) : Matrix4.rotationZ(0),
         child: InkWell(
           onTap: () {
-            print("okay");
+            print("onTap Okay");
+            print(pitsIndexesToAddSeed);
             if (northCarryingSeedFromServe == 1 ||
                 southCarryingSeedFromServe == 1) {
               if (i == southHouseIndex || i == northHouseIndex) {
@@ -1315,6 +1321,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                 pitIndex: i,
               );
             } else if (centerPitIndexFrom != -1) {
+              print("centerPitIndexFrom $centerPitIndexFrom");
               addSingleSeedToPit(
                 pitIndex: i,
                 centerIndex: centerPitIndexFrom,
