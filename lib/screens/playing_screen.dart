@@ -31,38 +31,38 @@ class _PlayingScreenState extends State<PlayingScreen>
   late Map<String, List<int>> nextPhasePitsStartMoveWithCaptureHintsMap;
   late List<int> viewHintCaptureMoveList = [];
   late Map<int, int> pitsSeedsList = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 0,
-    8: 0,
+    0: 1,
+    1: 1,
+    2: 2,
+    3: 2,
+    4: 2,
+    5: 2,
+    6: 2,
+    7: 2,
+    8: 2,
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
     11: houseSeeds,
-    12: 0,
-    13: 3,
-    14: 0,
-    15: 0,
-    16: 0,
-    17: 0,
-    18: 1,
-    19: 1,
+    12: 2,
+    13: 0,
+    14: 2,
+    15: 2,
+    16: 1,
+    17: 1,
+    18: 2,
+    19: 2,
     20: houseSeeds,
     21: adjacentPitsSeeds,
     22: adjacentPitsSeeds,
-    23: 0,
-    24: 0,
-    25: 0,
-    26: 0,
-    27: 0,
+    23: 2,
+    24: 2,
+    25: 2,
+    26: 2,
+    27: 2,
     28: 0,
-    29: 0,
-    30: 0,
-    31: 0,
+    29: 2,
+    30: 2,
+    31: 2,
   };
   int leftClockwiseArrowIndicator = -1;
   int rightClockwiseArrowIndicator = -1;
@@ -75,6 +75,7 @@ class _PlayingScreenState extends State<PlayingScreen>
   int northCarryingSeedFromServe = 0;
   bool isCapturedFromServe = false;
   List<int> possibleCapturePits = [];
+  bool isCapturedFromTakataPhase = false;
 
   /// Show both indicators when selectionDirection == 0 && currentCarryingSeed > 0
   /// Show indicator when on the next pit to add seed
@@ -466,7 +467,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     print(nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
     setState(() {
       viewHintCaptureMoveList =
-          nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"]!;
+          nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex-"] ?? [];
       viewHintCaptureMoveList.addAll(
           nextPhasePitsStartMoveWithCaptureHintsMap["$pitIndex+"] ?? []);
     });
@@ -556,9 +557,6 @@ class _PlayingScreenState extends State<PlayingScreen>
       /// Where to add seed
       /// In which direction to add seed
       if (currentCarryingSeeds != 0 && selectedDirection == 0) {
-        print("Nimeishia hapaaaaaaaaa");
-        print(pitsIndexesToAddSeed);
-
         /// SET DIRECTION FOR SOWING
         if (leftClockwiseArrowIndicator == pitIndex) {
           if (isCapturedFromServe) {
@@ -571,7 +569,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   dirAnticlockwise: selectedDirection)
             ];
             pitsIndexesToAddSeed.removeLast();
-            isCapturedFromServe = false;
+            // isCapturedFromServe = false;
           } else {
             selectedDirection = 1;
             pitsIndexesToAddSeed = sowing(
@@ -591,7 +589,7 @@ class _PlayingScreenState extends State<PlayingScreen>
             ];
 
             pitsIndexesToAddSeed.removeLast();
-            isCapturedFromServe = false;
+            // isCapturedFromServe = false;
           } else {
             selectedDirection = -1;
             pitsIndexesToAddSeed = sowing(
@@ -600,9 +598,20 @@ class _PlayingScreenState extends State<PlayingScreen>
                 dirAnticlockwise: selectedDirection);
           }
         }
+        if (pitsSeedsList[pitsIndexesToAddSeed.last]! > 0 &&
+            (southInnerRow.contains(pitsIndexesToAddSeed.last) ||
+                northInnerRow.contains(pitsIndexesToAddSeed.last)) &&
+            checkForPitIndexIfCanCapture(pitIndex: pitsIndexesToAddSeed.last)) {
+          isCapturedFromTakataPhase = true;
+          print(
+              "isCapturedFromTakataPhase $isCapturedFromTakataPhase ${pitsIndexesToAddSeed.last}");
+        } else {
+          isCapturedFromTakataPhase = false;
+          print(
+              "isCapturedFromTakataPhase $isCapturedFromTakataPhase  ${pitsIndexesToAddSeed.last}");
+        }
       }
       if (currentCarryingSeeds > 0) {
-        print("ashshasashsas");
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
             if (pitsIndexesToAddSeed.length == 1) {
@@ -620,6 +629,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                       checkIfHouseStillHasReputation(
                           houseIndex: northHouseIndex)) {
                     if (isCapturedFromServe) {
+                      /// TODO
                       print("I'm North and Alive House CAN capture");
                     } else {
                       print("I'm North and Alive House but can't capture");
@@ -629,6 +639,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                       checkIfHouseStillHasReputation(
                           houseIndex: southHouseIndex)) {
                     if (isCapturedFromServe) {
+                      /// TODO
                       print("I'm South and Alive House CAN capture");
                     } else {
                       print("I'm South and Alive House but can't capture");
@@ -642,7 +653,8 @@ class _PlayingScreenState extends State<PlayingScreen>
                   // selectedDirection = 0;
                   centerPitIndexFrom = pitIndex;
                   currentCarryingSeeds--;
-                  if (adjacentCapturingPairPits.contains(pitIndex)) {
+                  if (adjacentCapturingPairPits.contains(pitIndex) &&
+                      (isCapturedFromServe || isCapturedFromTakataPhase)) {
                     if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
                       if (pitIndex + 8 == southHouseIndex) {
                         updateHouseFunctional(houseIndex: southHouseIndex);
@@ -651,7 +663,6 @@ class _PlayingScreenState extends State<PlayingScreen>
                       pitsSeedsList[pitIndex + 8] = 0;
                       // isCapturedFromServe = true;
                       if (selectedDirection == 0) {
-                        print("77777777777777777777");
                         chooseDirectionFromCapture(fromPit: pitIndex);
                       }
                       carryingSeedsFromPit(pitIndexFrom: pitIndex);
@@ -771,7 +782,6 @@ class _PlayingScreenState extends State<PlayingScreen>
           pitsSeedsList[pitIndex + 8] = 0;
           isCapturedFromServe = true;
           var startFrom = directionExceptions(pitIndex: pitIndex);
-
           if (startFrom != -1) {
             pitsIndexesToAddSeed = sowingAfterCaptureFromSowing(
                 start: startFrom,
@@ -784,7 +794,7 @@ class _PlayingScreenState extends State<PlayingScreen>
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
           currentCarryingSeedsFromServe = false;
           possibleCapturePits = [];
-          // selectedDirection = 0;
+          print("isCapturedFromServe $isCapturedFromServe");
           return;
         } else if (pitIndex >= 16 && pitsSeedsList[pitIndex - 8]! > 0) {
           print("Now capturing from North");
@@ -809,7 +819,7 @@ class _PlayingScreenState extends State<PlayingScreen>
           carryingSeedsFromPit(pitIndexFrom: pitIndex);
           currentCarryingSeedsFromServe = false;
           possibleCapturePits = []; // RESET PITS HINTS
-          // selectedDirection = 0;
+          print("isCapturedFromServe $isCapturedFromServe");
           return;
         }
       }
@@ -818,6 +828,7 @@ class _PlayingScreenState extends State<PlayingScreen>
       // pitsIndexesToAddSeed = [];
       isCapturedFromServe = false;
       print("Added from serve, WITHOUT capture");
+      print("isCapturedFromServe $isCapturedFromServe");
       chooseDirection(fromPit: pitIndex);
       carryingSeedsFromPit(pitIndexFrom: pitIndex);
       possibleCapturePits = [];
@@ -832,6 +843,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
   }
 
+  forceCaptureTakataPhase({required int pitIndex}) {}
   addSeedFromServeToHouseWithoutCapture({required int houseIndex}) {
     setState(() {
       northCarryingSeedFromServe = 0;
@@ -1375,6 +1387,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   /// TODO
                   /// With exception to NAMUA start, limited to ONLY non-empty pits
                   /// Reset capturedFromServe bool value
+                  isCapturedFromTakataPhase = false;
                   isCapturedFromServe = false;
                   centerPitIndexFrom = i;
                   currentCarryingSeeds = pitsSeedsList[i]!;
@@ -1389,6 +1402,9 @@ class _PlayingScreenState extends State<PlayingScreen>
           onLongPress: () {
             if (nextPhasePitsStartMoveWithCapture.contains(i)) {
               viewHintCaptureMove(pitIndex: i);
+
+              /// TODO
+              /// Highlight start pit
             }
           },
           child: Container(
@@ -1561,7 +1577,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           radius: 1,
-                          center: Alignment.topRight,
+                          center: Alignment.bottomRight,
                           colors: [
                             Colors.brown.shade100,
                             Colors.brown.shade800,
