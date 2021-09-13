@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bao_la_kete/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class PlayingScreen extends StatefulWidget {
 
 class _PlayingScreenState extends State<PlayingScreen>
     with SingleTickerProviderStateMixin {
+  final assetsAudioPlayer = AssetsAudioPlayer();
   late int currentServesSouth = servesSeeds;
   late int currentServesNorth = servesSeeds;
 
@@ -39,7 +41,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     5: 0,
     6: 0,
     7: 0,
-    8: 0,
+    8: 2,
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
     11: houseSeeds,
@@ -49,7 +51,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     15: 0,
     16: 0,
     17: 0,
-    18: 0,
+    18: 2,
     19: 0,
     20: houseSeeds,
     21: adjacentPitsSeeds,
@@ -84,6 +86,11 @@ class _PlayingScreenState extends State<PlayingScreen>
   int nextComingPitToAddSeed = -1;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  addSeedToPitSoundEffect() {
+    AssetsAudioPlayer.playAndForget(
+      Audio('assets/audios/addSeedToPit.mp3'),
+    );
+  }
 
   resetGame() {
     print("Reset");
@@ -614,6 +621,8 @@ class _PlayingScreenState extends State<PlayingScreen>
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
+            addSeedToPitSoundEffect();
+
             if (pitsIndexesToAddSeed.length == 1) {
               var last = pitsIndexesToAddSeed[0];
 
@@ -1206,6 +1215,13 @@ class _PlayingScreenState extends State<PlayingScreen>
                 )
               : SizedBox.shrink(),
           Positioned(
+            // child: Container(
+            //     child: AnimatedList(
+            //   itemBuilder: (context, index, animation) {
+            //     return slideIt(context, index, animation);
+            //   },
+            //   initialItemCount: 5,
+            // )
             child: Text(
               currentCarryingSeeds.toString(),
               style: TextStyle(fontSize: 48, color: Colors.red),
@@ -1213,6 +1229,16 @@ class _PlayingScreenState extends State<PlayingScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget slideIt(BuildContext context, int index, animation) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(-1, 0),
+        end: Offset(0, 0),
+      ).animate(animation),
+      child: seedOnMove(isNorth: true),
     );
   }
 
