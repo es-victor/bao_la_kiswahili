@@ -170,7 +170,6 @@ class _PlayingScreenState extends State<PlayingScreen>
         lowerBound: 0.2);
     _animationController.repeat(reverse: true);
 
-
     checkForPossibleCaptureForNextPlayerMove(isNorthPlaying: northIsPlaying);
     super.initState();
   }
