@@ -69,7 +69,7 @@ class _MenuBarsState extends State<MenuBars>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.brown.shade50,
+          // color: Colors.brown.shade50,
           shape: BoxShape.circle,
         ),
         padding: EdgeInsets.all(8),

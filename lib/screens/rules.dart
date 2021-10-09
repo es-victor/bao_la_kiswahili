@@ -175,9 +175,7 @@ class _RulesState extends State<Rules> with TickerProviderStateMixin {
                 pageBuilder: (context, animation, secondaryAnimation) {
                   return Material(
                     elevation: 0,
-                    child: PlayingScreen(
-                      title: 'Bao la kete',
-                    ),
+                    child: PlayingScreen(),
                   );
                 },
                 transitionsBuilder:

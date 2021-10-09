@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PlayingScreen extends StatefulWidget {
-  PlayingScreen({Key? key, required this.title}) : super(key: key);
-  final String title;
+  PlayingScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _PlayingScreenState createState() => _PlayingScreenState();
@@ -853,6 +854,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
   }
 
+  /// TODO:
   forceCaptureTakataPhase({required int pitIndex}) {}
   addSeedFromServeToHouseWithoutCapture({required int houseIndex}) {
     setState(() {
@@ -873,6 +875,28 @@ class _PlayingScreenState extends State<PlayingScreen>
         print("Remove one from House");
       }
     });
+  }
+
+  checkIfItsCorrespondingInnerRowHasMoreThanOneSeedPit(
+      {required int pitIndex}) {
+    if (pitIndex < 16) {
+      /// Check on North
+      for (int i in northInnerRow) {
+        if (pitsSeedsList[i]! > 1) {
+          print("Can't start from $pitIndex pit, just play the innerRow pit");
+          return true;
+        }
+      }
+    } else {
+      /// Check on South
+      for (int i in southInnerRow) {
+        if (pitsSeedsList[i]! > 1) {
+          print("Can't start from $pitIndex pit, just play the innerRow pit");
+          return true;
+        }
+      }
+    }
+    return false; // Has it
   }
 
   ///TODO
@@ -1416,6 +1440,29 @@ class _PlayingScreenState extends State<PlayingScreen>
                 return;
               }
             }
+
+            /// Can not play non-capture move pit if there are capture moves
+            if (nextPhasePitsStartMoveWithCapture.isNotEmpty &&
+                !nextPhasePitsStartMoveWithCapture.contains(i)) {
+              print(
+                  "Can not play non-capture move pit if there are capture moves or You play on wrong Side");
+              return;
+            }
+            print("viewHintCaptureMoveList $viewHintCaptureMoveList");
+            if (!nextPhasePitsStartMoveWithCapture.contains(i)) {
+              /// Restrict start on a move without capture from outer/back rows
+              /// IF inner row has at least a single pit with 2 or more seeds
+              /// Now check if the pit is on the outer/back row
+              if (northInnerRow.contains(i) || southInnerRow.contains(i)) {
+                /// Safe to Go
+              } else {
+                /// Check if innerRows has at least a single pit with 2 or more seeds
+                if (checkIfItsCorrespondingInnerRowHasMoreThanOneSeedPit(
+                    pitIndex: i)) {
+                  return;
+                }
+              }
+            }
             if ((i < pits / 2 &&
                     northIsPlaying &&
                     northCarryingSeedFromServe == 0) ||
@@ -1433,6 +1480,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   }
                 }
               }
+
               if (currentCarryingSeeds == 0) {
                 setState(() {
                   /// TODO

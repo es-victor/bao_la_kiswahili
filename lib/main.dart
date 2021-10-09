@@ -1,4 +1,4 @@
-import 'package:bao_la_kete/screens/home_screen.dart';
+import 'package:bao_la_kete/screens/playing_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.brown,
         textTheme: GoogleFonts.kufamTextTheme(),
       ),
-      // home: PlayingScreen(title: 'Bao la kete'),
+      home: PlayingScreen(),
       // home: Rules(),
-      home: HomeScreen(),
+      // home: HomeScreen(),
     );
   }
 }

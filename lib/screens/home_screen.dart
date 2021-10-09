@@ -1,4 +1,6 @@
+import 'package:bao_la_kete/screens/playing_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'components/menu_bars.dart';
 import 'learn_to_play.dart';
@@ -65,6 +67,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _controllerControllerFlagDots.dispose();
     super.dispose();
+  }
+
+  _navigateToPlayPage() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return Material(
+              elevation: 10,
+              child: PlayingScreen(),
+            );
+          },
+          transitionDuration: Duration(milliseconds: 600),
+          reverseTransitionDuration: Duration(milliseconds: 600),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: animation.drive(
+                Tween(
+                  begin: Offset(0, 1),
+                  end: Offset(0, 0),
+                ).chain(
+                  CurveTween(curve: Curves.ease),
+                ),
+              ),
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.centerRight,
+                child: child,
+              ),
+            );
+          }),
+    );
   }
 
   _navigateToLearnToPlayPage() {
@@ -146,6 +179,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               left: 8,
               child: MenuBars(
                 color: primaryColor,
+                lineHeight: 3,
                 function: () {
                   print("Menu");
                 },
@@ -164,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         buildMaterialButton(
           width: width,
           label: "PLAY",
+          function: _navigateToPlayPage,
         ),
         buildMaterialButton(
           width: width,
@@ -229,9 +264,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               () {
                 print("NULL");
               },
-          textColor: Colors.white,
           child: Container(
-            child: Text(label),
+            child: Hero(
+              tag: label,
+              child: Material(
+                child: Text(label),
+                color: Colors.transparent,
+                textStyle: TextStyle(
+                  color: Colors.white,
+                  fontFamily: GoogleFonts.kufam().fontFamily,
+                ),
+              ),
+            ),
           ),
         ),
       ),
