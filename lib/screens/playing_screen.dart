@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bao_la_kete/constants.dart';
-import 'package:bao_la_kete/screens/remove_scroll_glow.dart';
+import 'package:bao_la_kete/screens/components/remove_scroll_glow.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1150,6 +1150,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     ),
                     alignment: Alignment.topLeft,
                   ),
+                  boxShadow: boxShadow(),
                 ),
                 width: sMin * 3 / 2,
                 height: sMin * 3 / 4,
@@ -1233,7 +1234,13 @@ class _PlayingScreenState extends State<PlayingScreen>
   List<BoxShadow> boxShadow() {
     return [
       BoxShadow(
-        color: Colors.brown.shade600,
+        color: Colors.brown.shade800,
+        blurRadius: 0,
+        spreadRadius: 1,
+        offset: Offset(0, 4),
+      ),
+      BoxShadow(
+        color: Colors.brown.shade400,
         blurRadius: 0,
         spreadRadius: 1,
         offset: Offset(-4, 0),
@@ -1245,13 +1252,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         offset: Offset(4, 0),
       ),
       BoxShadow(
-        color: Colors.brown.shade800,
-        blurRadius: 0,
-        spreadRadius: 1,
-        offset: Offset(0, 4),
-      ),
-      BoxShadow(
-        color: Colors.brown.shade700,
+        color: Colors.brown.shade500,
         blurRadius: 0,
         spreadRadius: 1,
         offset: Offset(0, -4),
