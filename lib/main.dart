@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations([
       // DeviceOrientation.portraitUp,
       // DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
+      // DeviceOrientation.landscapeRight,
+      // DeviceOrientation.landscapeLeft,
     ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: PlayingScreen(title: 'Flutter Demo Home Page'),
+      // home: Rules(),
     );
   }
 }

@@ -2,8 +2,10 @@ import 'dart:math' as math;
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bao_la_kete/constants.dart';
+import 'package:bao_la_kete/screens/remove_scroll_glow.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class PlayingScreen extends StatefulWidget {
   PlayingScreen({Key? key, required this.title}) : super(key: key);
@@ -41,7 +43,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     5: 0,
     6: 0,
     7: 0,
-    8: 2,
+    8: 0,
     9: adjacentPitsSeeds,
     10: adjacentPitsSeeds,
     11: houseSeeds,
@@ -51,7 +53,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     15: 0,
     16: 0,
     17: 0,
-    18: 2,
+    18: 0,
     19: 0,
     20: houseSeeds,
     21: adjacentPitsSeeds,
@@ -85,7 +87,6 @@ class _PlayingScreenState extends State<PlayingScreen>
   int leftIndicator = -1;
   int nextComingPitToAddSeed = -1;
   late AnimationController _animationController;
-  late Animation<double> _animation;
   addSeedToPitSoundEffect() {
     AssetsAudioPlayer.playAndForget(
       Audio('assets/audios/addSeedToPit.mp3'),
@@ -169,8 +170,6 @@ class _PlayingScreenState extends State<PlayingScreen>
         lowerBound: 0.2);
     _animationController.repeat(reverse: true);
 
-    _animation =
-        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
 
     checkForPossibleCaptureForNextPlayerMove(isNorthPlaying: northIsPlaying);
     super.initState();
@@ -206,23 +205,26 @@ class _PlayingScreenState extends State<PlayingScreen>
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title:
-                Text("${winnerNorth ? "North has Won!!!" : "South has Won!!"}"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              "${winnerNorth ? "NORTH HAS WON" : "SOUTH HAS WON"}",
+              textAlign: TextAlign.center,
+            ),
             actions: [
-              InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("Close"),
-                ),
-                onTap: () => Navigator.pop(context, false),
-              ),
-              InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("New game"),
-                ),
-                onTap: () => Navigator.pop(context, true),
-              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MaterialButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    color: Colors.brown.shade900,
+                    textColor: Colors.white,
+                    child: Text("New game"),
+                  ),
+                ],
+              )
             ],
           );
         }).then((reset) {
@@ -922,7 +924,6 @@ class _PlayingScreenState extends State<PlayingScreen>
       }
       for (int i in southInnerRow) {
         if (pitsSeedsList[i]! > 0 && i != houseIndex) {
-          print("mimi nimekataaaaaaaa");
           return false;
         }
       }
@@ -936,7 +937,6 @@ class _PlayingScreenState extends State<PlayingScreen>
       }
       for (int i in northInnerRow) {
         if (pitsSeedsList[i]! > 0 && i != houseIndex) {
-          print("mimi nimekataaaaaaaa");
           return false;
         }
       }
@@ -1124,8 +1124,14 @@ class _PlayingScreenState extends State<PlayingScreen>
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setPreferredOrientations([
+      // DeviceOrientation.portraitUp,
+      // DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
     double sMin = MediaQuery.maybeOf(context)!.size.shortestSide;
-    double sMax = MediaQuery.maybeOf(context)!.size.longestSide;
     return Scaffold(
       body: Stack(
         children: [
@@ -1145,12 +1151,6 @@ class _PlayingScreenState extends State<PlayingScreen>
                     ),
                     alignment: Alignment.topLeft,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Color(0xff402609),
-                        blurRadius: 2,
-                        spreadRadius: 4),
-                  ],
                 ),
                 width: sMin * 3 / 2,
                 height: sMin * 3 / 4,
@@ -1160,15 +1160,17 @@ class _PlayingScreenState extends State<PlayingScreen>
                   children: [
                     Center(
                       child: Container(
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          primary: true,
-                          crossAxisCount: 8,
-                          children: List.generate(
-                            pits,
-                            (i) {
-                              return pit(i: i, sMin: sMin);
-                            },
+                        child: removeScrollGlow(
+                          listChild: GridView.count(
+                            shrinkWrap: true,
+                            primary: true,
+                            crossAxisCount: 8,
+                            children: List.generate(
+                              pits,
+                              (i) {
+                                return pit(i: i, sMin: sMin);
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -1187,7 +1189,9 @@ class _PlayingScreenState extends State<PlayingScreen>
             right: 0,
             child: Container(
               alignment: Alignment.center,
-              child: serves(isNorth: true, w: sMin),
+              child: currentServesNorth == 0 && currentServesSouth == 0
+                  ? SizedBox()
+                  : serves(isNorth: true, w: sMin),
             ),
           ),
           Positioned(
@@ -1197,7 +1201,9 @@ class _PlayingScreenState extends State<PlayingScreen>
             right: 0,
             child: Container(
               alignment: Alignment.center,
-              child: serves(isNorth: false, w: sMin),
+              child: currentServesNorth == 0 && currentServesSouth == 0
+                  ? SizedBox()
+                  : serves(isNorth: false, w: sMin),
             ),
           ),
           northCarryingSeedFromServe == 1
@@ -1215,13 +1221,6 @@ class _PlayingScreenState extends State<PlayingScreen>
                 )
               : SizedBox.shrink(),
           Positioned(
-            // child: Container(
-            //     child: AnimatedList(
-            //   itemBuilder: (context, index, animation) {
-            //     return slideIt(context, index, animation);
-            //   },
-            //   initialItemCount: 5,
-            // )
             child: Text(
               currentCarryingSeeds.toString(),
               style: TextStyle(fontSize: 48, color: Colors.red),
@@ -1230,6 +1229,35 @@ class _PlayingScreenState extends State<PlayingScreen>
         ],
       ),
     );
+  }
+
+  List<BoxShadow> boxShadow() {
+    return [
+      BoxShadow(
+        color: Colors.brown.shade600,
+        blurRadius: 0,
+        spreadRadius: 1,
+        offset: Offset(-4, 0),
+      ),
+      BoxShadow(
+        color: Colors.brown.shade600,
+        blurRadius: 0,
+        spreadRadius: 1,
+        offset: Offset(4, 0),
+      ),
+      BoxShadow(
+        color: Colors.brown.shade800,
+        blurRadius: 0,
+        spreadRadius: 1,
+        offset: Offset(0, 4),
+      ),
+      BoxShadow(
+        color: Colors.brown.shade700,
+        blurRadius: 0,
+        spreadRadius: 1,
+        offset: Offset(0, -4),
+      ),
+    ];
   }
 
   Widget slideIt(BuildContext context, int index, animation) {
@@ -1282,10 +1310,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   BlendMode.screen,
                 ),
               ),
-              boxShadow: [
-                BoxShadow(
-                    color: Color(0xff402609), blurRadius: 2, spreadRadius: 4),
-              ],
+              boxShadow: boxShadow(),
               borderRadius: BorderRadius.circular(
                   MediaQuery.of(context).size.shortestSide),
             ),
@@ -1492,11 +1517,15 @@ class _PlayingScreenState extends State<PlayingScreen>
                               color: Colors.green,
                             ),
                           ),
-                        ))
+                        ),
+                      )
                     : SizedBox(),
                 Container(
                   child: kete(i, pitsSeedsList[i]!, sMin, false),
-                )
+                ),
+                // Container(
+                //   color: i < 16 ? Colors.red : Colors.yellow,
+                // )
               ],
             ),
           ),
@@ -1552,10 +1581,12 @@ class _PlayingScreenState extends State<PlayingScreen>
           shape: BoxShape.circle,
           gradient: RadialGradient(
             radius: 1,
-            center: Alignment.topRight,
+            center: Alignment(0.2, 0.2),
+            focalRadius: 0.01,
             colors: [
-              Colors.brown.shade100,
+              Colors.brown.shade200,
               Colors.brown.shade800,
+              Colors.brown.shade200,
             ],
           ),
         ),
@@ -1592,21 +1623,19 @@ class _PlayingScreenState extends State<PlayingScreen>
                       width: w / 32,
                       height: w / 32,
                       decoration: BoxDecoration(
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.black12,
-                        //     blurRadius: 2,
-                        //     spreadRadius: 0.5,
-                        //     offset: Offset(-1, 1),
-                        //   ),
-                        // ],
+                        border: Border.all(
+                          color: Colors.grey.shade900,
+                          width: 0.1,
+                        ),
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           radius: 1,
-                          center: Alignment.bottomRight,
+                          center: Alignment(0.4, 0.2),
+                          focalRadius: 0.01,
                           colors: [
-                            Colors.brown.shade100,
+                            Colors.brown.shade200,
                             Colors.brown.shade800,
+                            Colors.brown.shade200,
                           ],
                         ),
                       ),
