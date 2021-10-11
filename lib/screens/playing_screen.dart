@@ -199,7 +199,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     return returnValue;
   }
 
-  _dialogBuilder(BuildContext context) {
+  _dialogResults(BuildContext context) {
     return showDialog(
         context: context,
         barrierDismissible: false,
@@ -308,12 +308,12 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
     if (winnerNorth) {
       print("winnerNorth");
-      _dialogBuilder(context);
+      _dialogResults(context);
 
       return;
     } else if (winnerSouth) {
       print("winnerSouth");
-      _dialogBuilder(context);
+      _dialogResults(context);
 
       return;
     } else {
@@ -348,10 +348,10 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
     if (winnerNorth) {
       print("winnerNorth");
-      _dialogBuilder(context);
+      _dialogResults(context);
     } else if (winnerSouth) {
       print("winnerSouth");
-      _dialogBuilder(context);
+      _dialogResults(context);
     } else {
       print("Game continues ...");
     }
@@ -1145,6 +1145,27 @@ class _PlayingScreenState extends State<PlayingScreen>
     return toReturn;
   }
 
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Exit'),
+            content: new Text('Do you want to exit game?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -1155,102 +1176,105 @@ class _PlayingScreenState extends State<PlayingScreen>
       DeviceOrientation.landscapeLeft,
     ]);
     double sMin = MediaQuery.maybeOf(context)!.size.shortestSide;
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(color: Colors.grey.shade300),
-            child: Center(
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/bao-bg.jpg'),
-                    fit: BoxFit.fill,
-                    colorFilter: ColorFilter.mode(
-                      Color(0xff402609),
-                      BlendMode.screen,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(color: Colors.grey.shade300),
+              child: Center(
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/bao-bg.jpg'),
+                      fit: BoxFit.fill,
+                      colorFilter: ColorFilter.mode(
+                        Color(0xff402609),
+                        BlendMode.screen,
+                      ),
+                      alignment: Alignment.topLeft,
                     ),
-                    alignment: Alignment.topLeft,
+                    boxShadow: boxShadow(),
                   ),
-                  boxShadow: boxShadow(),
-                ),
-                width: sMin * 3 / 2,
-                height: sMin * 3 / 4,
-                child: Stack(
-                  // shrinkWrap: true,
-                  // clipBehavior: Clip.none,
-                  children: [
-                    Center(
-                      child: Container(
-                        child: removeScrollGlow(
-                          listChild: GridView.count(
-                            shrinkWrap: true,
-                            primary: true,
-                            crossAxisCount: 8,
-                            children: List.generate(
-                              pits,
-                              (i) {
-                                return pit(i: i, sMin: sMin);
-                              },
+                  width: sMin * 3 / 2,
+                  height: sMin * 3 / 4,
+                  child: Stack(
+                    // shrinkWrap: true,
+                    // clipBehavior: Clip.none,
+                    children: [
+                      Center(
+                        child: Container(
+                          child: removeScrollGlow(
+                            listChild: GridView.count(
+                              shrinkWrap: true,
+                              primary: true,
+                              crossAxisCount: 8,
+                              children: List.generate(
+                                pits,
+                                (i) {
+                                  return pit(i: i, sMin: sMin);
+                                },
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          /// SEED FROM SERVES ON MOVE
-          Positioned(
-            top: 0,
-            height: sMin * 1 / 8,
-            left: 0,
-            right: 0,
-            child: Container(
-              alignment: Alignment.center,
-              child: currentServesNorth == 0 && currentServesSouth == 0
-                  ? SizedBox()
-                  : serves(isNorth: true, w: sMin),
+            /// SEED FROM SERVES ON MOVE
+            Positioned(
+              top: 0,
+              height: sMin * 1 / 8,
+              left: 0,
+              right: 0,
+              child: Container(
+                alignment: Alignment.center,
+                child: currentServesNorth == 0 && currentServesSouth == 0
+                    ? SizedBox()
+                    : serves(isNorth: true, w: sMin),
+              ),
             ),
-          ),
-          Positioned(
-            height: sMin * 1 / 8,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              alignment: Alignment.center,
-              child: currentServesNorth == 0 && currentServesSouth == 0
-                  ? SizedBox()
-                  : serves(isNorth: false, w: sMin),
+            Positioned(
+              height: sMin * 1 / 8,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                alignment: Alignment.center,
+                child: currentServesNorth == 0 && currentServesSouth == 0
+                    ? SizedBox()
+                    : serves(isNorth: false, w: sMin),
+              ),
             ),
-          ),
-          northCarryingSeedFromServe == 1
-              ? Positioned(
-                  top: sMin * 0.05,
-                  left: sMin * 0.05,
-                  child: seedOnMove(isNorth: northIsPlaying),
-                )
-              : SizedBox.shrink(),
-          southCarryingSeedFromServe == 1
-              ? Positioned(
-                  bottom: sMin * 0.05,
-                  right: sMin * 0.05,
-                  child: seedOnMove(isNorth: !northIsPlaying),
-                )
-              : SizedBox.shrink(),
-          Positioned(
-            child: Text(
-              currentCarryingSeeds.toString(),
-              style: TextStyle(fontSize: 48, color: Colors.red),
+            northCarryingSeedFromServe == 1
+                ? Positioned(
+                    top: sMin * 0.05,
+                    left: sMin * 0.05,
+                    child: seedOnMove(isNorth: northIsPlaying),
+                  )
+                : SizedBox.shrink(),
+            southCarryingSeedFromServe == 1
+                ? Positioned(
+                    bottom: sMin * 0.05,
+                    right: sMin * 0.05,
+                    child: seedOnMove(isNorth: !northIsPlaying),
+                  )
+                : SizedBox.shrink(),
+            Positioned(
+              child: Text(
+                currentCarryingSeeds.toString(),
+                style: TextStyle(fontSize: 48, color: Colors.red),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
