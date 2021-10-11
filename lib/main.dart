@@ -1,4 +1,4 @@
-import 'package:bao_la_kete/screens/playing_screen.dart';
+import 'package:bao_la_kete/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +9,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -21,9 +20,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.brown,
         textTheme: GoogleFonts.kufamTextTheme(),
       ),
-      home: PlayingScreen(),
+      // home: PlayingScreen(),
       // home: Rules(),
-      // home: HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }

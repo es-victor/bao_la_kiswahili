@@ -1,6 +1,42 @@
 [
   {
     "id": 1,
-    "rule_category": 2
+    "category": 1,
+    "title": "Starting the game, adding",
+    "description": "The player (North or South) pick a seed from his/her serves and add it to non-empty inner-row on his/her side",
+    "exceptions": [
+      "Player cannot add seed to an empty pit",
+      "Seed cannot be added into on the back-row, only inner-row",
+      "Seed cannot be added into on the back-row, only inner-row",
+      "Player cannot add a seed into the House(functional) if that move cannot capture make a capture and there are other non-empty pits on the inner-row"
+    ]
+  },
+  {
+    "id": 2,
+    "category": 1,
+    "title": "Starting the game, sowing",
+    "description": "After adding a seed from serve, (if no capture) a player takes all the seeds from the pit (+ added seed) and start sowing the seeds on either Clockwise or Anti-Clockwise direction",
+    "exceptions": []
+  },
+  {
+    "id": 3,
+    "category": 1,
+    "title": "Starting the game, sowing continue",
+    "description": "During sowing if the last seed ends in a empty pit, that is the end of a player move",
+    "exceptions": []
+  },
+  {
+  "id": 4,
+  "category": 1,
+  "title": "Starting the game, sowing continue",
+  "description": "During sowing if the last seed ends in a non-empty pit and cannot make a capture, sowing continue from that pit (take all pit seeds + last seed) in the same direction",
+  "exceptions": []
+ },
+  {
+    "id": 5,
+    "category": 1,
+    "title": "Starting the game, sowing continue",
+    "description": "During sowing if the last seed ends in a non-empty inner-row pit and can make a capture, the capture occurs",
+    "exceptions": []
   }
 ]

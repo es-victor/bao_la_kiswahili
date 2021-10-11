@@ -253,26 +253,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       opacity: _animation,
       child: SlideTransition(
         position: _offsetAnimation,
-        child: MaterialButton(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
-          ),
-          minWidth: width * 0.6,
-          color: primaryColor,
-          onPressed: function ??
-              () {
-                print("NULL");
-              },
-          child: Container(
-            child: Hero(
-              tag: label,
-              child: Material(
-                child: Text(label),
-                color: Colors.transparent,
-                textStyle: TextStyle(
-                  color: Colors.white,
-                  fontFamily: GoogleFonts.kufam().fontFamily,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: MaterialButton(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            minWidth: width * 0.6,
+            color: primaryColor,
+            onPressed: function ??
+                () {
+                  print("NULL");
+                },
+            child: Container(
+              child: Hero(
+                tag: label,
+                child: Material(
+                  child: Text(label),
+                  color: Colors.transparent,
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontFamily: GoogleFonts.kufam().fontFamily,
+                  ),
                 ),
               ),
             ),

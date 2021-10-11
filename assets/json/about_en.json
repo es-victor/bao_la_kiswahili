@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id" : 1,
+    "description": "This is one of the Mancala family board games which is played on Eastern Africa countries (Mostly Tanzania)."
+  },
+  {
+    "id" : 2,
+    "description": "Bao la kete is played by two people, each on either side of the board (North and South)."
+  },
+  {
+  "id" : 3,
+  "description" : "The board contains 32 pits divided into 4 rows (2 on North and 2 on South)"
+  },
+  {
+    "id": 4,
+    "description": ""
+  }
+]
