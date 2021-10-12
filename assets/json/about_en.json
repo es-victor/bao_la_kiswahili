@@ -9,7 +9,7 @@
   },
   {
   "id" : 3,
-  "description" : "The board contains 32 pits divided into 4 rows (2 on North and 2 on South)"
+  "description" : "The board contains 32 pits divided into 4 rows (2 for North player and 2 for South player)"
   },
   {
     "id": 4,

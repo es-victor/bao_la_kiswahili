@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../constants_build.dart';
+import 'about_game.dart';
 import 'components/menu_bars.dart';
 import 'learn_to_play.dart';
 
@@ -101,6 +103,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  _navigateAboutTheGame() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return Material(
+              elevation: 10,
+              child: AboutGame(),
+            );
+          },
+          transitionDuration: Duration(milliseconds: 600),
+          reverseTransitionDuration: Duration(milliseconds: 600),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: animation.drive(
+                Tween(
+                  begin: Offset(0, 1),
+                  end: Offset(0, 0),
+                ).chain(
+                  CurveTween(curve: Curves.ease),
+                ),
+              ),
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.centerRight,
+                child: child,
+              ),
+            );
+          }),
+    );
+  }
+
   _navigateToLearnToPlayPage() {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -175,6 +208,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               beginOffset: Offset(0, 0.99),
               endOffset: Offset(0, 0.99),
             ),
+            Positioned(
+              top: 64,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 48,
+                ),
+                child: FittedBox(
+                  child: Text(
+                    "Bao la kete",
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.zillaSlab().fontFamily,
+                      color: Colors.brown.shade900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Center(
               child: buildButtonLists(width),
             ),
@@ -207,14 +259,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         buildMaterialButton(
           width: width,
           label: "LEARN TO PLAY",
-          function: _navigateToLearnToPlayPage,
+          // function: _navigateToLearnToPlayPage,
         ),
         buildMaterialButton(
-            width: width,
-            label: "ABOUT THE GAME",
-            function: () {
-              print("About the game");
-            }),
+          width: width,
+          label: "ABOUT THE GAME",
+          function: _navigateAboutTheGame,
+        )
       ],
     );
   }
@@ -230,22 +281,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         begin: beginOffset,
         end: endOffset,
       ).animate(_animationFlagDots),
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(
-          children: [
-            RotationTransition(
-              child: Container(
-                height: width * 0.5,
-                width: width,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color,
+      child: Opacity(
+        opacity: 0,
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              RotationTransition(
+                child: Container(
+                  height: width * 0.5,
+                  width: width,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                  ),
                 ),
+                turns: _animationFlagDots,
               ),
-              turns: _animationFlagDots,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -257,29 +311,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       opacity: _animation,
       child: SlideTransition(
         position: _offsetAnimation,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: MaterialButton(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0),
-            ),
-            minWidth: width * 0.6,
-            color: primaryColor,
-            onPressed: function ??
-                () {
-                  print("NULL");
-                },
+        child: InkWell(
+          onTap: function ??
+              () {
+                print("NULL");
+              },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Container(
-              child: Hero(
-                tag: label,
-                child: Material(
-                  child: Text(label),
-                  color: Colors.transparent,
-                  textStyle: TextStyle(
-                    color: Colors.white,
-                    fontFamily: GoogleFonts.kufam().fontFamily,
-                  ),
+              decoration: BoxDecoration(
+                boxShadow: boxShadow(),
+                color: Colors.brown.shade900,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
                 ),
               ),
             ),

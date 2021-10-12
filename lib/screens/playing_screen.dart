@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:bao_la_kete/constants.dart';
+import 'package:bao_la_kete/constants_game_variables.dart';
 import 'package:bao_la_kete/screens/components/remove_scroll_glow.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1149,6 +1149,13 @@ class _PlayingScreenState extends State<PlayingScreen>
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            titlePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            insetPadding: EdgeInsets.zero,
             title: new Text('Exit'),
             content: new Text('Do you want to exit game?'),
             actions: <Widget>[
@@ -1284,26 +1291,26 @@ class _PlayingScreenState extends State<PlayingScreen>
       BoxShadow(
         color: Colors.brown.shade800,
         blurRadius: 0,
-        spreadRadius: 1,
+        spreadRadius: 0,
         offset: Offset(0, 4),
-      ),
-      BoxShadow(
-        color: Colors.brown.shade400,
-        blurRadius: 0,
-        spreadRadius: 1,
-        offset: Offset(-4, 0),
       ),
       BoxShadow(
         color: Colors.brown.shade600,
         blurRadius: 0,
-        spreadRadius: 1,
+        spreadRadius: 0,
         offset: Offset(4, 0),
       ),
       BoxShadow(
         color: Colors.brown.shade500,
         blurRadius: 0,
-        spreadRadius: 1,
+        spreadRadius: 0,
         offset: Offset(0, -4),
+      ),
+      BoxShadow(
+        color: Colors.brown.shade400,
+        blurRadius: 0,
+        spreadRadius: 0,
+        offset: Offset(-4, 0),
       ),
     ];
   }
@@ -1728,15 +1735,20 @@ class _PlayingScreenState extends State<PlayingScreen>
                       height: w / 16,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color:
-                            activePit == pit ? activePitColor : Colors.white38,
+                        color: activePit == pit
+                            ? activePitColor
+                            : isOnServes
+                                ? Colors.transparent
+                                : Colors.white38,
                         shape: pit == southHouseIndex || pit == northHouseIndex
                             ? BoxShape.rectangle
                             : BoxShape.circle,
                       ),
-                      child: Text(
-                        seeds.toString(),
-                      ),
+                      child: isOnServes
+                          ? SizedBox()
+                          : Text(
+                              seeds.toString(),
+                            ),
                     ),
                   ),
                 )

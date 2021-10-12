@@ -38,5 +38,12 @@
     "title": "Starting the game, sowing continue",
     "description": "During sowing if the last seed ends in a non-empty inner-row pit and can make a capture, the capture occurs",
     "exceptions": []
+  },
+  {
+    "id": 6,
+    "category": 1,
+    "title": "Starting the game, sowing continue",
+    "description": "During sowing if the last seed ends in a non-empty inner-row pit and can make a capture, the capture occurs",
+    "exceptions": []
   }
 ]
