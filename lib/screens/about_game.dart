@@ -1,3 +1,4 @@
+import 'package:bao_la_kete/screens/terminologies_en.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -106,12 +107,6 @@ class _AboutGameState extends State<AboutGame> {
     );
   }
 
-  Center buildTerminologiesPage() {
-    return Center(
-      child: Text('Terminologies'),
-    );
-  }
-
   ListView buildAboutTheGamePage() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(
@@ -141,6 +136,41 @@ class _AboutGameState extends State<AboutGame> {
         );
       },
       itemCount: aboutTheGame.length,
+    );
+  }
+
+  ListView buildTerminologiesPage() {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
+      restorationId: "list",
+      key: UniqueKey(),
+      itemBuilder: (BuildContext context, int i) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                terminologies[i]["title"],
+              ),
+              Text(
+                terminologies[i]["description"],
+              ),
+              if (terminologies[i]["image"] != "")
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child:
+                      Image.asset("assets/images/${terminologies[i]["image"]}"),
+                )
+            ],
+          ),
+        );
+      },
+      itemCount: terminologies.length,
     );
   }
 

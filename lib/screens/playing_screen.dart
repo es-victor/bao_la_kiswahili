@@ -556,6 +556,18 @@ class _PlayingScreenState extends State<PlayingScreen>
     return startFrom;
   }
 
+  addingSeedToNonEmptyPitSound() {
+    AssetsAudioPlayer.playAndForget(
+      Audio('assets/audios/add (12).mp3'),
+    );
+  }
+
+  addingSeedToLastEmptyPitSound() {
+    AssetsAudioPlayer.playAndForget(
+      Audio('assets/audios/last (1).mp3'),
+    );
+  }
+
   addSingleSeedToPit({
     required int pitIndex,
     required int centerIndex,
@@ -623,8 +635,6 @@ class _PlayingScreenState extends State<PlayingScreen>
       if (currentCarryingSeeds > 0) {
         if (pitsIndexesToAddSeed.contains(pitIndex)) {
           if (pitsIndexesToAddSeed[0] == pitIndex) {
-            addSeedToPitSoundEffect();
-
             if (pitsIndexesToAddSeed.length == 1) {
               var last = pitsIndexesToAddSeed[0];
 
@@ -636,6 +646,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   /// if the move does not start with a capture and last seed falls in the House, check if the house is valid
                   /// if House is valid && started WITHOUT capture, END THE MOVE
                   /// else if House is valid && started WITH capture, CHOOSE either ==> Continue SOWING or END MOVE
+                  /// TODO
                   if (last == northHouseIndex &&
                       checkIfHouseStillHasReputation(
                           houseIndex: northHouseIndex)) {
@@ -667,6 +678,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   if (adjacentCapturingPairPits.contains(pitIndex) &&
                       (isCapturedFromServe || isCapturedFromTakataPhase)) {
                     if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
+                      addingSeedToNonEmptyPitSound();
                       if (pitIndex + 8 == southHouseIndex) {
                         updateHouseFunctional(houseIndex: southHouseIndex);
                       }
@@ -687,6 +699,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                       return;
                     } else if (pitIndex >= 16 &&
                         pitsSeedsList[pitIndex - 8]! > 0) {
+                      addingSeedToNonEmptyPitSound();
                       if (pitIndex - 8 == northHouseIndex) {
                         updateHouseFunctional(houseIndex: northHouseIndex);
                       }
@@ -707,6 +720,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                       return;
                     }
                   }
+                  addingSeedToNonEmptyPitSound();
                   if (selectedDirection == 0) {
                     chooseDirectionFromCapture(fromPit: pitIndex);
                   }
@@ -734,12 +748,15 @@ class _PlayingScreenState extends State<PlayingScreen>
             }
             currentCarryingSeeds--;
             if (currentCarryingSeeds == 0) {
+              addingSeedToLastEmptyPitSound();
               checkForWinner();
               northIsPlaying = !northIsPlaying;
               checkForPossibleCaptureForNextPlayerMove(
                   isNorthPlaying: northIsPlaying);
               selectedDirection = 0;
               isCapturedFromServe = false;
+            } else {
+              addingSeedToNonEmptyPitSound();
             }
           }
         }
@@ -781,6 +798,7 @@ class _PlayingScreenState extends State<PlayingScreen>
       northCarryingSeedFromServe = 0;
       southCarryingSeedFromServe = 0;
       pitsSeedsList[pitIndex] = (pitsSeedsList[pitIndex]! + 1);
+      addingSeedToNonEmptyPitSound();
       if (adjacentCapturingPairPits.contains(pitIndex)) {
         if (pitIndex < 16 && pitsSeedsList[pitIndex + 8]! > 0) {
           print("Now capturing from South");
@@ -1161,11 +1179,11 @@ class _PlayingScreenState extends State<PlayingScreen>
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: new Text('No'),
+                child: new Text('NO'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: new Text('Yes'),
+                child: new Text('YES'),
               ),
             ],
           ),
@@ -1582,22 +1600,19 @@ class _PlayingScreenState extends State<PlayingScreen>
                 ),
                 possibleCapturePits.contains(i) ||
                         nextPhasePitsStartMoveWithCapture.contains(i)
-                    ? Positioned(
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: Opacity(
-                          opacity: 1.0,
-                          child: Container(
-                            width: sMin / 32,
-                            height: sMin / 32,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ),
-                      )
+                    ? isNorth
+                        ? Positioned(
+                            top: 0,
+                            right: 0,
+                            left: 0,
+                            child: buildHintDotColor(sMin),
+                          )
+                        : Positioned(
+                            bottom: 0,
+                            right: 0,
+                            left: 0,
+                            child: buildHintDotColor(sMin),
+                          )
                     : SizedBox(),
                 Container(
                   child: kete(i, pitsSeedsList[i]!, sMin, false),
@@ -1608,6 +1623,20 @@ class _PlayingScreenState extends State<PlayingScreen>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Opacity buildHintDotColor(double sMin) {
+    return Opacity(
+      opacity: 1.0,
+      child: Container(
+        width: sMin / 32,
+        height: sMin / 32,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.green,
         ),
       ),
     );
@@ -1636,10 +1665,10 @@ class _PlayingScreenState extends State<PlayingScreen>
           ),
         ],
         gradient: RadialGradient(
-          radius: 0.9,
+          radius: 0.8,
           center: Alignment(0.5, 0.5),
           focalRadius: 0.01,
-          focal: Alignment(0.4, 0.3),
+          focal: Alignment(0.2, 0.2),
           colors: [
             Color(0xffe89635),
             Colors.black38,
