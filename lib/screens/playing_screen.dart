@@ -177,6 +177,12 @@ class _PlayingScreenState extends State<PlayingScreen>
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    SystemChrome.setEnabledSystemUIOverlays(
+        [SystemUiOverlay.top, SystemUiOverlay.bottom]);
     _animationController.dispose();
     super.dispose();
   }
@@ -1193,14 +1199,13 @@ class _PlayingScreenState extends State<PlayingScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
     SystemChrome.setPreferredOrientations([
-      // DeviceOrientation.portraitUp,
-      // DeviceOrientation.portraitDown,
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
-    double sMin = MediaQuery.maybeOf(context)!.size.shortestSide;
+    SystemChrome.setEnabledSystemUIOverlays([]);
+
+    final double sMin = MediaQuery.maybeOf(context)!.size.shortestSide;
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -1379,7 +1384,12 @@ class _PlayingScreenState extends State<PlayingScreen>
                 image: AssetImage('assets/images/bao-bg.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Color(0xff402609),
+                  isNorth == northIsPlaying &&
+                          (southCarryingSeedFromServe == 0 ||
+                              northCarryingSeedFromServe == 0) &&
+                          currentCarryingSeeds == 0
+                      ? Colors.green
+                      : Color(0xff402609),
                   BlendMode.screen,
                 ),
               ),

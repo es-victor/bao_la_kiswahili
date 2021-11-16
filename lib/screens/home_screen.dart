@@ -167,10 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    final double width = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
         body: Stack(

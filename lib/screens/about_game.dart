@@ -13,24 +13,11 @@ class AboutGame extends StatefulWidget {
 }
 
 class _AboutGameState extends State<AboutGame> {
-  int currentPageIndex = 0;
+  // int currentPageIndex = 0;
+  ValueNotifier<int> currentPageIndex = ValueNotifier(0);
   final PageController controller = PageController(initialPage: 0);
-  void _onHorizontalDragStart(DragStartDetails details) {
-    if (currentPageIndex == 0) {
-      print(details.globalPosition.dx);
-    }
-  }
-
-  void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    if (currentPageIndex == 0) {
-      print(details.globalPosition.dx);
-    }
-  }
-
-  void _onHorizontalDragEnd(DragEndDetails details) {
-    if (currentPageIndex == 0) {
-      print(details.velocity);
-    }
+  _updateCurrentPageIndex(int index) {
+    currentPageIndex.value = index;
   }
 
   @override
@@ -47,24 +34,17 @@ class _AboutGameState extends State<AboutGame> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: GestureDetector(
-                onHorizontalDragStart: _onHorizontalDragStart,
-                onHorizontalDragEnd: _onHorizontalDragEnd,
-                onHorizontalDragUpdate: _onHorizontalDragUpdate,
-                child: PageView(
-                  onPageChanged: (pageIndex) {
-                    setState(() {
-                      currentPageIndex = pageIndex;
-                    });
-                  },
-                  scrollDirection: Axis.horizontal,
-                  controller: controller,
-                  children: <Widget>[
-                    buildAboutTheGamePage(),
-                    buildTerminologiesPage(),
-                    buildRulesPage()
-                  ],
-                ),
+              child: PageView(
+                onPageChanged: (pageIndex) {
+                  _updateCurrentPageIndex(pageIndex);
+                },
+                scrollDirection: Axis.horizontal,
+                controller: controller,
+                children: <Widget>[
+                  buildAboutTheGamePage(),
+                  buildTerminologiesPage(),
+                  buildRulesPage()
+                ],
               ),
             ),
             Positioned(
@@ -178,32 +158,35 @@ class _AboutGameState extends State<AboutGame> {
       {required String label, required int labelIndex, required bool last}) {
     return InkWell(
       onTap: () {
-        setState(() {
-          currentPageIndex = labelIndex;
-          controller.animateToPage(
-            currentPageIndex,
-            duration: Duration(microseconds: 300),
-            curve: Curves.linear,
-          );
-        });
+        _updateCurrentPageIndex(labelIndex);
       },
-      child: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.only(right: last ? 0 : 16),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            boxShadow: boxShadow(),
-            color: currentPageIndex == labelIndex
-                ? Colors.brown.shade800
-                : Colors.brown.shade300,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
+      child: ValueListenableBuilder(
+        valueListenable: currentPageIndex,
+        builder: (context, currentPage, _) {
+          return Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(right: last ? 0 : 16),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                boxShadow: boxShadow(),
+                color: currentPage == labelIndex
+                    ? Colors.brown.shade800
+                    : Colors.brown.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: currentPage == labelIndex
+                      ? Colors.white
+                      : Colors.brown.shade50,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
