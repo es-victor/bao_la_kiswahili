@@ -69,6 +69,40 @@ class _PlayingScreenState extends State<PlayingScreen>
     30: 0,
     31: 0,
   };
+  late Map<int, int> _pitsSeedsList = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: adjacentPitsSeeds,
+    10: adjacentPitsSeeds,
+    11: houseSeeds,
+    12: 0,
+    13: 0,
+    14: 0,
+    15: 0,
+    16: 0,
+    17: 0,
+    18: 0,
+    19: 0,
+    20: houseSeeds,
+    21: adjacentPitsSeeds,
+    22: adjacentPitsSeeds,
+    23: 0,
+    24: 0,
+    25: 0,
+    26: 0,
+    27: 0,
+    28: 0,
+    29: 0,
+    30: 0,
+    31: 0,
+  };
   int leftClockwiseArrowIndicator = -1;
   int rightClockwiseArrowIndicator = -1;
   int selectedDirection = 0;
@@ -81,6 +115,9 @@ class _PlayingScreenState extends State<PlayingScreen>
   bool isCapturedFromServe = false;
   List<int> possibleCapturePits = [];
   bool isCapturedFromTakataPhase = false;
+  // Map<int, int> _pitsSeedsList = {};
+  List<int> _pitsIndexesToAddSeed = [];
+  bool _northIsPlaying = true;
 
   /// Show both indicators when selectionDirection == 0 && currentCarryingSeed > 0
   /// Show indicator when on the next pit to add seed
@@ -255,6 +292,35 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
   }
 
+  undoAddFromServe() {
+    /// Reset states to before addToPit
+    setState(() {
+      pitsIndexesToAddSeed = _pitsIndexesToAddSeed;
+      northIsPlaying = _northIsPlaying;
+      northIsPlaying
+          ? northCarryingSeedFromServe = 1
+          : southCarryingSeedFromServe = 1;
+      currentCarryingSeedsFromServe = false;
+      centerPitIndexFrom = -1;
+      leftClockwiseArrowIndicator = -1;
+      rightClockwiseArrowIndicator = -1;
+      isCapturedFromServe = false;
+      currentCarryingSeeds = 0;
+      pitsSeedsList = _pitsSeedsList;
+    });
+  }
+
+  cacheStateBeforeAddFromServe() {
+    // setState(() {
+    // print("pitsSeedsList $pitsSeedsList");
+
+    // _pitsSeedsList = pitsSeedsList;
+    _pitsIndexesToAddSeed = pitsIndexesToAddSeed;
+    _northIsPlaying = northIsPlaying;
+    // });
+    print("_pitsSeedsList $_pitsSeedsList");
+  }
+
   pickFromNorthServes() {
     if (northIsPlaying) {
       northCarryingSeedFromServe = 1;
@@ -268,6 +334,9 @@ class _PlayingScreenState extends State<PlayingScreen>
       }
 
       print("North");
+
+      /// Store values before pick from serve
+      cacheStateBeforeAddFromServe();
       return currentServesNorth--;
     }
     return currentServesNorth;
@@ -285,6 +354,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         pitsIndexesToAddSeed = possiblePitsWithCapture;
       }
       print("South");
+      cacheStateBeforeAddFromServe();
       return currentServesSouth--;
     }
     return currentServesSouth;
@@ -1298,9 +1368,12 @@ class _PlayingScreenState extends State<PlayingScreen>
                   )
                 : SizedBox.shrink(),
             Positioned(
-              child: Text(
-                currentCarryingSeeds.toString(),
-                style: TextStyle(fontSize: 48, color: Colors.red),
+              child: InkWell(
+                onTap: true ? null : undoAddFromServe(),
+                child: Text(
+                  currentCarryingSeeds.toString(),
+                  style: TextStyle(fontSize: 48, color: Colors.red),
+                ),
               ),
             ),
           ],

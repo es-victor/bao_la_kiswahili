@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Bao la kete',
       theme: theme,
+      color: Colors.white,
       // home: PlayingScreen(),
       // home: Rules(),
       home: HomeScreen(),
