@@ -1,16 +1,19 @@
-# bao_la_kete
+# Bao la kete
 
-A new Flutter project.
+## About the game
 
-## Getting Started
+(Flutter project) This is a traditional Mancala board game played in most of East Africans countries 
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- Two players play together each on either side [North and South] (currently on the same device)
+- Sound effects during playing
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Some Screenshots
+ 
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![home](https://user-images.githubusercontent.com/47971105/142721132-b6075fb5-5c95-434c-99b6-80aca4f9a68e.png)
+![house](https://user-images.githubusercontent.com/47971105/142721134-a157411e-c28a-4b67-8047-8740c25c2b3e.png)
+![play-2](https://user-images.githubusercontent.com/47971105/142721145-931749ee-6230-4037-a44d-086467ee1cc5.png)
+![about](https://user-images.githubusercontent.com/47971105/142721150-5b59d877-f0c1-492a-9bab-0eca7c13620d.png)
+![play](https://user-images.githubusercontent.com/47971105/142721153-041cd0ae-9c57-4fce-ac9a-852a89f5143a.png)
