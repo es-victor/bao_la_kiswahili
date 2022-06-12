@@ -1,8 +1,7 @@
 # Bao la kete
 
 ## About the game
-
-(Flutter project) This is a traditional Mancala board game played in most of East Africans countries 
+This is a traditional Mancala Board Gamae played in Tanzania 
 
 ## Features
 
